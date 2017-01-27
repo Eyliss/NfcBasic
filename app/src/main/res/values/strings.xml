@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NfcBasic</string>
+    <string name="main_title">Riddle&amp;Code</string>
+    <string name="tag_available">Put your phone close to the antenna for your account information</string>
+    <string name="tag_unavailable">Tag no available</string>
+    <string name="network">Your network is: %1$s</string>
+    <string name="confirmed_balance">Confirmed balance: %1$s</string>
+    <string name="unconfirmed_balance">Unconfirmed balance: %1$s</string>
+
+</resources>
