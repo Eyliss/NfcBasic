@@ -32,6 +32,9 @@
 
 
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="d1b8bb24902f0824b0e51e8c8a522bc3b7dc12c9" />
     </application>
 
     <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
