@@ -1,10 +1,12 @@
 package com.riddleandcode.nfcbasic.activities;
 
+import com.crashlytics.android.Crashlytics;
 import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.managers.TagManager;
 import com.riddleandcode.nfcbasic.models.Balance;
 import com.riddleandcode.nfcbasic.utils.Constants;
 
+import io.fabric.sdk.android.Fabric;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         bindViews();
 
