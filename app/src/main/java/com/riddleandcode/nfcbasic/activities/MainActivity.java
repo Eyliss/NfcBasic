@@ -5,10 +5,17 @@ import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.managers.TagManager;
 import com.riddleandcode.nfcbasic.models.Balance;
 import com.riddleandcode.nfcbasic.utils.Constants;
+import com.riddleandcode.nfcbasic.utils.Crypto;
+import com.riddleandcode.nfcbasic.utils.Util;
 
 import io.fabric.sdk.android.Fabric;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.spongycastle.cms.CMSException;
+import org.spongycastle.operator.OperatorCreationException;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -30,6 +37,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.Security;
+import java.security.cert.CertificateException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private static String GET_BALANCE_URL = "/get_address_balance";
     private static String NETWORK = "/BTCTEST";
 
+    byte[] publicKey = Hex.decodeHex("049a55ad1e210cd113457ccd3465b930c9e7ade5e760ef64b63142dad43a308ed08e2d85632e8ff0322d3c7fda14409eafdc4c5b8ee0882fe885c92e3789c36a7a".toCharArray());
+    byte[] message = Hex.decodeHex("54686973206973206a75737420736f6d6520706f696e746c6573732064756d6d7920737472696e672e205468616e6b7320616e7977617920666f722074616b696e67207468652074696d6520746f206465636f6465206974203b2d29".toCharArray());
+    byte[] sign = Hex.decodeHex("304402205fef461a4714a18a5ca6dce6d5ab8604f09f3899313a28ab430eb9860f8be9d602203c8d36446be85383af3f2e8630f40c4172543322b5e8973e03fff2309755e654".toCharArray());
+
     private TextView mTvReadTag;
     private LinearLayout mInfoLayout;
     private TextView mNetwork;
@@ -46,9 +59,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView mUnconfirmedBalance;
 
     private ProgressBar mProgressBar;
-
     private TagManager mTagManager;
 
+    public MainActivity() throws DecoderException {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +73,13 @@ public class MainActivity extends AppCompatActivity {
 
         mTagManager = new TagManager(this);
         mTvReadTag.setText(mTagManager.isAvailable() ? R.string.tag_available : R.string.tag_unavailable);
+
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+        try {
+            checkSign(message, sign,publicKey);
+        } catch (CertificateException | CMSException | OperatorCreationException e) {
+            e.printStackTrace();
+        }
     }
 
     private void bindViews(){
@@ -186,6 +207,18 @@ public class MainActivity extends AppCompatActivity {
         mNetwork.setText(getString(R.string.network,balance.getNetwork()));
         mConfirmedBalance.setText(getString(R.string.confirmed_balance,balance.getConfirmedBalance()));
         mUnconfirmedBalance.setText(getString(R.string.unconfirmed_balance,balance.getUnconfirmedBalance()));
+    }
+
+    /**
+     * Controls whether a signature is the signature of the message using the public key read from the chip.
+     *
+     * @param message the message
+     * @param sign the signature
+     * @param key the publick key
+     * @return true if the signature is that of the message with the expected private key
+     */
+    public void checkSign(byte[] message, byte[] sign, byte[] key ) throws CertificateException, CMSException, OperatorCreationException {
+        Crypto.verify(message, sign, key);
     }
 
     private URL getUrlWithParams(String address){
