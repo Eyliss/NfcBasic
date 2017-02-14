@@ -1,5 +1,11 @@
 package com.riddleandcode.nfcbasic.utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Created by Eyliss on 2/1/17.
  */
@@ -26,5 +32,18 @@ public class Util {
                   + Character.digit(s.charAt(i+1), 16));
         }
         return data;
+    }
+
+    public static byte[] concatArray(byte[] array1, byte[] array2) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        outputStream.write(array1);
+        outputStream.write(array2);
+        return outputStream.toByteArray( );
+    }
+
+    public static byte[] hashString(byte[] message) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(message);
+        return  md.digest();
     }
 }

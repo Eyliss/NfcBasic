@@ -127,8 +127,13 @@ public class MainActivity extends AppCompatActivity {
                     boolean boolVar = true;
                 } while (mTagManager.ntagGetNsReg(0x00,0) !=  1);
 
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x04);
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x04);
+//                parseResponse(mTagManager.ntagGetLastAnswer());
+
+                byte[] hashMessage = Util.hashString(message);
+                Log.d(TAG,Util.bytesToHex(hashMessage));
+
                 fetchData();
 
                 mTagManager.setTimeout(100);
@@ -138,6 +143,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    private void parseResponse(byte[] response){
+
     }
 
     private void fetchData(){

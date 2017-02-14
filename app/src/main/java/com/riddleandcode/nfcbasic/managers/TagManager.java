@@ -1,5 +1,8 @@
 package com.riddleandcode.nfcbasic.managers;
 
+import com.riddleandcode.nfcbasic.utils.RequestCodes;
+import com.riddleandcode.nfcbasic.utils.Util;
+
 import android.content.Context;
 import android.nfc.FormatException;
 import android.nfc.NfcAdapter;
@@ -7,6 +10,7 @@ import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by Eyliss on 1/27/17.
@@ -150,5 +154,84 @@ public class TagManager {
 
     public void setTimeout(int timeout){
         nfca.setTimeout(timeout);
+    }
+
+    /*
+     * Get
+     * 4 bytes -> opcode, like the previous version
+     * 4 bytes -> payload size, same old
+     * 4 bytes -> reserved for future use, undefined content, can just leave it as 0s
+     * 4 bytes -> comm dir. 0 means NFC can read/write, 1 means i2c can read/write
+     */
+    public void getHeader(){
+        try {
+
+            ntagSectorSelect((byte) 0x01);
+            byte commDir;
+            do{
+                byte[] response = ntagRead((byte) 0xF0);
+                byte[] opcode = Arrays.copyOfRange(response,0,4);
+                byte[] payloadSize = Arrays.copyOfRange(response,4,8);
+                commDir = response[15];
+            }while (commDir !=  1);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String hashMessage(byte[] message){
+        try {
+
+            ntagSectorSelect((byte) 0x01);
+            byte[] hashData = {RequestCodes.HASH.getCode(), (byte) message.length};
+            hashData = Util.concatArray(hashData,message);
+            ntagWrite(hashData, (byte) 0xF0);
+            ntagRead((byte) 0xF0);
+
+
+//            4 bytes -> opcode, like the previous version
+//            4 bytes -> payload size, same old
+//            4 bytes -> reserved for future use, undefined content, can just leave it as 0s
+//            4 bytes -> comm dir. 0 means NFC can read/write, 1 means i2c can read/write
+            return Util.bytesToHex(answer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FormatException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    public void signMessage(byte[] message){
+        try {
+            byte[] signData = {RequestCodes.SIGN.getCode(), (byte) 0x21 ,(byte) 0x31 ,(byte) 0x41};
+            ntagWrite(signData, (byte) 0xF0);
+
+            ntagSectorSelect((byte) 0x01);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FormatException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public String getKey(){
+        try {
+            byte[] getKeyData = {RequestCodes.GET_KEY.getCode(), (byte) 0x21 ,(byte) 0x31 ,(byte) 0x41};
+
+            ntagSectorSelect((byte) 0x01);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FormatException e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 }
