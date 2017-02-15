@@ -19,6 +19,7 @@ import android.nfc.tech.NfcA;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.nio.ByteBuffer;
 
 /**
  * Created by Eyliss on 1/27/17.
@@ -133,6 +134,18 @@ public class TagManager {
         nfca.setTimeout(20);
     }
 
+    public byte[] ntagWrite32(int data, byte blockNr) throws IOException, FormatException {
+        answer = new byte[0];
+        command = new byte[6];
+        command[0] = -94;
+        command[1] = blockNr;
+        command[2] = (byte)(data>>24);
+        command[3] = (byte)(data>>16);
+        command[4] = (byte)(data>>8);
+        command[5] = (byte)data;
+        return nfca.transceive(command);
+    }
+
     public byte[] ntagWrite(byte[] data, byte blockNr) throws IOException, FormatException {
         answer = new byte[0];
         command = new byte[6];
@@ -202,6 +215,27 @@ public class TagManager {
 //        }
 //    }
 
+    // --- Some constants for communication
+    private final byte HEADER_ADDRESS = 0;
+    private final byte PAYLOAD_ADDRESS = 4;
+
+    public void ntagWriteHeader(RequestCodes opCode, int msgSize) throws IOException, FormatException {
+        ntagWrite32(opCode.getCode(), HEADER_ADDRESS);
+        ntagWrite32(msgSize, (byte)(HEADER_ADDRESS + 1));
+        ntagWrite32(0, (byte)(HEADER_ADDRESS + 2));
+        ntagWrite32(1, (byte)(HEADER_ADDRESS + 1)); // Tell I2c the message is ready
+    }
+
+    public void ntagWritePayload(byte[] payload) throws IOException, FormatException {
+        for(int i = 0; i < payload.length/4; i++) {
+            byte[] slice = new byte[4];
+            for(int j = 0; j < 4; ++j) {
+                slice[j] = payload[4*i+j];
+            }
+            ntagWrite(slice, (byte)(PAYLOAD_ADDRESS+i));
+        }
+    }
+
     /*
      * Get public key from tag
      */
@@ -224,16 +258,18 @@ public class TagManager {
 
     public void signMessage(byte[] originalMessage){
         try {
-            message = originalMessage;
-            byte[] signData = {RequestCodes.SIGN.getCode(), (byte) message.length};
-            signData = Util.concatArray(signData,message);
+            //message = originalMessage;
+            //byte[] signData = {RequestCodes.SIGN.getCode(), (byte) message.length};
+            //signData = Util.concatArray(signData,message);
 
             ntagSectorSelect((byte) 0x01);
-            ntagWrite(signData, (byte) 0x01);
+            //ntagWrite(signData, (byte) 0x01);
+            ntagWritePayload(originalMessage);
 
             //Write the header after the request
-            byte[] header = {RequestCodes.SIGN.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
-            ntagWrite(header, (byte) 0x00);
+            ntagWriteHeader(RequestCodes.SIGN, originalMessage.length);
+            //byte[] header = {RequestCodes.SIGN.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
+            //ntagWrite(header, (byte) 0x00);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
