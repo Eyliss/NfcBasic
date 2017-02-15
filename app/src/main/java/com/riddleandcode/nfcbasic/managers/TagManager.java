@@ -1,7 +1,14 @@
 package com.riddleandcode.nfcbasic.managers;
 
+import com.riddleandcode.nfcbasic.R;
+import com.riddleandcode.nfcbasic.utils.Crypto;
 import com.riddleandcode.nfcbasic.utils.RequestCodes;
 import com.riddleandcode.nfcbasic.utils.Util;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.spongycastle.cms.CMSException;
+import org.spongycastle.operator.OperatorCreationException;
 
 import android.content.Context;
 import android.nfc.FormatException;
@@ -10,6 +17,7 @@ import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 
 /**
@@ -18,16 +26,27 @@ import java.util.Arrays;
 
 public class TagManager {
 
+
+//    byte[] publicKey = Hex.decodeHex("049a55ad1e210cd113457ccd3465b930c9e7ade5e760ef64b63142dad43a308ed08e2d85632e8ff0322d3c7fda14409eafdc4c5b8ee0882fe885c92e3789c36a7a".toCharArray());
+    //    byte[] message = Hex.decodeHex("54686973206973206a75737420736f6d6520706f696e746c6573732064756d6d7920737472696e672e205468616e6b7320616e7977617920666f722074616b696e67207468652074696d6520746f206465636f6465206974203b2d29".toCharArray());
+//    byte[] sign = Hex.decodeHex("304402205fef461a4714a18a5ca6dce6d5ab8604f09f3899313a28ab430eb9860f8be9d602203c8d36446be85383af3f2e8630f40c4172543322b5e8973e03fff2309755e654".toCharArray());
+
+    byte[] publicKey;
+    byte[] message;
+    byte[] sign;
+
     private NfcAdapter nfcAdapter;
     private NfcA nfca;
 
     private byte current_sec = 0;
-    private int sector_select_timeout = 0;
-    private final int timeout = 20;
+    private int sectorSelectTimeout = 0;
     private byte[] answer;
     private byte[] command;
+    private int payloadSize = 0;
+    private int opCode = 0;
+    private int errorCode = 0;
 
-    public TagManager(Context context){
+    public TagManager(Context context) throws DecoderException {
         nfcAdapter = NfcAdapter.getDefaultAdapter(context);
     }
 
@@ -51,7 +70,7 @@ public class TagManager {
 
     public void ntagInit(Tag tag) {
         nfca = NfcA.get(tag);
-        sector_select_timeout = 20;
+        sectorSelectTimeout = 20;
         nfca.setTimeout(20);
         current_sec = 0;
     }
@@ -89,7 +108,7 @@ public class TagManager {
             command[1] = 0;
             command[2] = 0;
             command[3] = 0;
-            nfca.setTimeout(sector_select_timeout);
+            nfca.setTimeout(sectorSelectTimeout);
 
             try {
                 nfca.transceive(this.command);
@@ -114,7 +133,7 @@ public class TagManager {
         nfca.setTimeout(20);
     }
 
-    public void ntagWrite(byte[] data, byte blockNr) throws IOException, FormatException {
+    public byte[] ntagWrite(byte[] data, byte blockNr) throws IOException, FormatException {
         answer = new byte[0];
         command = new byte[6];
         command[0] = -94;
@@ -123,7 +142,7 @@ public class TagManager {
         command[3] = data[1];
         command[4] = data[2];
         command[5] = data[3];
-        nfca.transceive(command);
+        return nfca.transceive(command);
     }
 
     public byte[] ntagFastRead(byte startAddr, byte endAddr) throws IOException, FormatException {
@@ -156,26 +175,46 @@ public class TagManager {
         nfca.setTimeout(timeout);
     }
 
+    //Read the header block to check if the application is able to read from NFC
+    public boolean ntagReadable() throws IOException, FormatException {
+        ntagSectorSelect((byte) 0x01);
+        answer = ntagRead((byte) 0x00);
+
+        if(answer.length > 0 && !hasError()){
+            return Util.bytesToHex(answer).charAt(answer.length - 1) == 0;
+        }else{
+            return false;
+        }
+    }
+
+//    /*
+//     * Sent the message to the tag for hashing
+//     */
+//    public void hashMessage(byte[] originalMessage){
+//        try {
+//            ntagSectorSelect((byte) 0x01);
+//            byte[] hashData = {RequestCodes.HASH.getCode(), (byte) originalMessage.length};
+//
+//            hashData = Util.concatArray(hashData,originalMessage);
+//            ntagWrite(hashData, (byte) 0x01);
+//        } catch (IOException | FormatException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     /*
-     * Get
-     * 4 bytes -> opcode, like the previous version
-     * 4 bytes -> payload size, same old
-     * 4 bytes -> reserved for future use, undefined content, can just leave it as 0s
-     * 4 bytes -> comm dir. 0 means NFC can read/write, 1 means i2c can read/write
+     * Get public key from tag
      */
-    public void getHeader(){
+    public void getKey(){
         try {
+            byte[] getKeyData = {RequestCodes.GET_KEY.getCode(), (byte) 0x00 ,(byte) 0x00 ,(byte) 0x00};
 
             ntagSectorSelect((byte) 0x01);
-            byte commDir;
-            do{
-                byte[] response = ntagRead((byte) 0xF0);
-                byte[] opcode = Arrays.copyOfRange(response,0,4);
-                byte[] payloadSize = Arrays.copyOfRange(response,4,8);
-                commDir = response[15];
-            }while (commDir !=  1);
+            ntagWrite(getKeyData, (byte) 0x01);
 
-
+            //Write the header after the request
+            byte[] header = {RequestCodes.GET_KEY.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
+            ntagWrite(header, (byte) 0x00);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
@@ -183,55 +222,90 @@ public class TagManager {
         }
     }
 
-    public String hashMessage(byte[] message){
+    public void signMessage(byte[] originalMessage){
         try {
+            message = originalMessage;
+            byte[] signData = {RequestCodes.SIGN.getCode(), (byte) message.length};
+            signData = Util.concatArray(signData,message);
 
             ntagSectorSelect((byte) 0x01);
-            byte[] hashData = {RequestCodes.HASH.getCode(), (byte) message.length};
-            hashData = Util.concatArray(hashData,message);
-            ntagWrite(hashData, (byte) 0xF0);
-            ntagRead((byte) 0xF0);
+            ntagWrite(signData, (byte) 0x01);
 
-
-//            4 bytes -> opcode, like the previous version
-//            4 bytes -> payload size, same old
-//            4 bytes -> reserved for future use, undefined content, can just leave it as 0s
-//            4 bytes -> comm dir. 0 means NFC can read/write, 1 means i2c can read/write
-            return Util.bytesToHex(answer);
+            //Write the header after the request
+            byte[] header = {RequestCodes.SIGN.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
+            ntagWrite(header, (byte) 0x00);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
             e.printStackTrace();
         }
-
-        return "";
     }
 
-    public void signMessage(byte[] message){
+    public void parseSignResponse(){
         try {
-            byte[] signData = {RequestCodes.SIGN.getCode(), (byte) 0x21 ,(byte) 0x31 ,(byte) 0x41};
-            ntagWrite(signData, (byte) 0xF0);
-
             ntagSectorSelect((byte) 0x01);
+            sign = ntagRead((byte) 0x01);
+            sign = Util.concatArray(sign,ntagRead((byte) 0x02));
+            sign = Util.concatArray(sign,ntagRead((byte) 0x03));
+            sign = Util.concatArray(sign,ntagRead((byte) 0x04));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
             e.printStackTrace();
         }
-
     }
 
-    public String getKey(){
+    public void parseGetKeyResponse(){
         try {
-            byte[] getKeyData = {RequestCodes.GET_KEY.getCode(), (byte) 0x21 ,(byte) 0x31 ,(byte) 0x41};
-
             ntagSectorSelect((byte) 0x01);
+            publicKey = ntagRead((byte) 0x01);
+            publicKey = Util.concatArray(publicKey,ntagRead((byte) 0x02));
+            publicKey = Util.concatArray(publicKey,ntagRead((byte) 0x03));
+            publicKey = Util.concatArray(publicKey,ntagRead((byte) 0x04));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
             e.printStackTrace();
         }
+    }
 
-        return "";
+    /**
+     * Controls whether a signature is the signature of the message using the public key read from the chip.
+     *
+     * @param message the message
+     * @return true if the signature is that of the message with the expected private key
+     */
+    public boolean checkSign(byte[] message) throws CertificateException, CMSException, OperatorCreationException {
+        return Crypto.verify(message, sign, publicKey);
+    }
+
+    public byte[] getMessage(){
+        return message;
+    }
+
+    public byte[] getPublicKey(){
+        return publicKey;
+    }
+
+    public byte[] getSign(){
+        return sign;
+    }
+
+    public int getErrorMessage(){
+        switch (errorCode){
+            case 1:
+                return R.string.error_invalid_payload_size;
+            case 2:
+                return R.string.error_not_supported_operation;
+            case 3:
+                return R.string.error_operation_fail;
+            default:
+                return R.string.error_ocurred;
+        }
+    }
+
+    private boolean hasError(){
+        errorCode = Util.fromByteArray(Arrays.copyOfRange(answer,0,4));
+        return errorCode != 0;
     }
 }

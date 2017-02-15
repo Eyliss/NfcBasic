@@ -30,14 +30,21 @@
             android:text="@string/tag_available"
             style="@style/TextAppearance.AppCompat.Body1"
             android:layout_below="@+id/title"/>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/message_hint"
+            android:layout_below="@id/info_test"
+            android:id="@+id/et_message"
+            android:gravity="left"
+            style="@style/Base.TextAppearance.AppCompat.Body2"/>
     <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_below="@id/info_test"
+            android:layout_below="@id/et_message"
             android:visibility="gone"
             android:id="@+id/info_layout">
-
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

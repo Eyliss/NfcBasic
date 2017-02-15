@@ -1,10 +1,20 @@
 <resources>
     <string name="app_name">NfcBasic</string>
     <string name="main_title">Riddle&amp;Code</string>
-    <string name="tag_available">Put your phone close to the antenna for your account information</string>
+    <string name="tag_available">Please, introduce your message and put your phone close to the antenna</string>
     <string name="tag_unavailable">Tag no available</string>
+    <string name="message_hint">Introduce your message here</string>
+    <string name="empty_message_found">Please, introduce a message</string>
     <string name="network">Your network is: %1$s</string>
     <string name="confirmed_balance">Confirmed balance: %1$s</string>
     <string name="unconfirmed_balance">Unconfirmed balance: %1$s</string>
+
+    <string name="verification_success">Signature verification succeed</string>
+    <string name="verification_fail">Signature verification fail</string>
+
+    <string name="error_invalid_payload_size">Invalid payload size</string>
+    <string name="error_not_supported_operation">Operation not supported</string>
+    <string name="error_operation_fail">Operation fail</string>
+    <string name="error_ocurred">An error has ocurred</string>
 
 </resources>

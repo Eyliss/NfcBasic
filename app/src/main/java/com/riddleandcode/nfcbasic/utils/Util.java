@@ -3,8 +3,12 @@ package com.riddleandcode.nfcbasic.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * Created by Eyliss on 2/1/17.
@@ -34,6 +38,10 @@ public class Util {
         return data;
     }
 
+    public static String charStringtoHexString(String arg) {
+        return String.format("%040x", new BigInteger(1, arg.getBytes(/*YOUR_CHARSET?*/)));
+    }
+
     public static byte[] concatArray(byte[] array1, byte[] array2) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
         outputStream.write(array1);
@@ -41,9 +49,24 @@ public class Util {
         return outputStream.toByteArray( );
     }
 
-    public static byte[] hashString(byte[] message) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(message);
-        return  md.digest();
+    public static byte[] hashString(String originalMessage) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+
+        byte[] message = new byte[0];
+        try {
+            message = Hex.decodeHex(charStringtoHexString(originalMessage).toCharArray());
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(message);
+            return  md.digest();
+        } catch (DecoderException e) {
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+    /*
+     * packing an array of 4 bytes to an int, big endian
+     */
+    public static int fromByteArray(byte[] bytes) {
+        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
     }
 }
