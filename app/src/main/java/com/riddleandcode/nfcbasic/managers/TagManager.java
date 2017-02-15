@@ -34,7 +34,7 @@ public class TagManager {
 
     byte[] publicKey;
     byte[] message;
-    byte[] sign;
+    byte[] signature;
 
     private NfcAdapter nfcAdapter;
     private NfcA nfca;
@@ -280,10 +280,11 @@ public class TagManager {
     public void parseSignResponse(){
         try {
             ntagSectorSelect((byte) 0x01);
-            sign = ntagRead((byte) 0x01);
-            sign = Util.concatArray(sign,ntagRead((byte) 0x02));
-            sign = Util.concatArray(sign,ntagRead((byte) 0x03));
-            sign = Util.concatArray(sign,ntagRead((byte) 0x04));
+            byte[] sign = new byte[0];
+            for(int i = 1; i < 5 ; i++){
+                sign = Util.concatArray(sign,ntagRead((byte) i));
+            }
+            signature = sign;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
@@ -294,10 +295,12 @@ public class TagManager {
     public void parseGetKeyResponse(){
         try {
             ntagSectorSelect((byte) 0x01);
-            publicKey = ntagRead((byte) 0x01);
-            publicKey = Util.concatArray(publicKey,ntagRead((byte) 0x02));
-            publicKey = Util.concatArray(publicKey,ntagRead((byte) 0x03));
-            publicKey = Util.concatArray(publicKey,ntagRead((byte) 0x04));
+
+            byte[] key = new byte[0];
+            for(int i = 1; i < 3 ; i++){
+                key = Util.concatArray(key,ntagRead((byte) i));
+            }
+            publicKey = key;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
@@ -312,7 +315,7 @@ public class TagManager {
      * @return true if the signature is that of the message with the expected private key
      */
     public boolean checkSign(byte[] message) throws CertificateException, CMSException, OperatorCreationException {
-        return Crypto.verify(message, sign, publicKey);
+        return Crypto.verify(message, signature, publicKey);
     }
 
     public byte[] getMessage(){
@@ -323,8 +326,8 @@ public class TagManager {
         return publicKey;
     }
 
-    public byte[] getSign(){
-        return sign;
+    public byte[] getSignature(){
+        return signature;
     }
 
     public int getErrorMessage(){

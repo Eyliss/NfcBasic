@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
             do {
                 boolean boolVar = true;
             } while (!mTagManager.ntagReadable());
-            
+
             mTagManager.parseGetKeyResponse();
 
             boolean verified = mTagManager.checkSign(hashString);
@@ -213,10 +213,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected String doInBackground(Void... urls) {
-//            String address = Util.bytesToHex(mTagManager.getKey());
+            String address = Util.bytesToHex(mTagManager.getPublicKey());
             try {
                 //Hacked address until the device read a correct one from the antenna
-                URL url = getUrlWithParams("mobyyYFM7HafjFBtca9PAyN7TUAE5uiZFf");
+                URL url = getUrlWithParams(address);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 try {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -261,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setBalanceInfo(Balance balance){
         mTvReadTag.setVisibility(View.GONE);
+        mEtMessage.setVisibility(View.GONE);
         mInfoLayout.setVisibility(View.VISIBLE);
         mNetwork.setText(getString(R.string.network,balance.getNetwork()));
         mConfirmedBalance.setText(getString(R.string.confirmed_balance,balance.getConfirmedBalance()));
