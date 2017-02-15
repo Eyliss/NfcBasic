@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
             do {
                 boolean boolVar = true;
             } while (!mTagManager.ntagReadable());
-            
+
             mTagManager.parseGetKeyResponse();
 
             boolean verified = mTagManager.checkSign(hashString);

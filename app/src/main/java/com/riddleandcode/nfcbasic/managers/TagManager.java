@@ -245,7 +245,7 @@ public class TagManager {
         try {
             ntagSectorSelect((byte) 0x01);
             byte[] sign = new byte[0];
-            for(int i = 1; i < 9 ; i++){
+            for(int i = 1; i < 5 ; i++){
                 sign = Util.concatArray(sign,ntagRead((byte) i));
             }
             signature = sign;
@@ -261,7 +261,7 @@ public class TagManager {
             ntagSectorSelect((byte) 0x01);
 
             byte[] key = new byte[0];
-            for(int i = 1; i < 9 ; i++){
+            for(int i = 1; i < 3 ; i++){
                 key = Util.concatArray(key,ntagRead((byte) i));
             }
             publicKey = key;
