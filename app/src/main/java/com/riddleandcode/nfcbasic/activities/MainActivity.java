@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 if(mMessage.isEmpty()){
                     Toast.makeText(this,R.string.empty_message_found,Toast.LENGTH_SHORT).show();
                 }else{
-//                    signMessageAndVerify();
+                    signMessageAndVerify();
                     fetchAccountData();
                 }
 
