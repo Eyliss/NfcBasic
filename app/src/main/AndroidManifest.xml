@@ -8,7 +8,8 @@
 
 
     <application
-        android:allowBackup="true"
+            android:name=".NfcBasicApplication"
+            android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="NFC Transponder"
         android:supportsRtl="true"
