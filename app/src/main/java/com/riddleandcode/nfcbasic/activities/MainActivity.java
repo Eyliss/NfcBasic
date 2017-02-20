@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this,R.string.empty_message_found,Toast.LENGTH_SHORT).show();
                 }else{
                     signMessageAndVerify();
-                    fetchAccountData();
+//                    fetchAccountData();
                 }
 
                 mTagManager.setTimeout(100);
@@ -159,27 +159,41 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             byte[] hashString = Util.hashString(mMessage);
-            mTagManager.signMessage(hashString);
+//            mTagManager.signMessage(hashString);
 
-            Log.d(TAG,Util.bytesToHex(mTagManager.getMessage()));
+//            Log.d(TAG,Util.bytesToHex(mTagManager.getMessage()));
+            byte[] data0 = {(byte) 0x41, (byte) 0x21 ,(byte) 0x31 ,(byte) 0x41};
+            byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
+            byte[] data2 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
+            byte[] data3 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
 
-            //Wait until the tag is ready for be read
-            do {
-                boolean boolVar = true;
-            } while (!mTagManager.ntagReadable());
 
-            mTagManager.parseSignResponse();
+            mTagManager.ntagSectorSelect((byte) 0x01);
+            mTagManager.ntagWrite(data0, (byte) 0x04);
+            mTagManager.ntagWrite(data1, (byte) 0x05);
+            mTagManager.ntagWrite(data2, (byte) 0x06);
+            mTagManager.ntagWrite(data3, (byte) 0x07);
 
-            mTagManager.getKey();
-            do {
-                boolean boolVar = true;
-            } while (!mTagManager.ntagReadable());
+            mTagManager.ntagRead((byte) 0x04);
+            Log.d(TAG,Util.bytesToHex(mTagManager.ntagGetLastAnswer()));
 
-            mTagManager.parseGetKeyResponse();
-
-            boolean verified = mTagManager.checkSign(hashString);
-            int message = verified ? R.string.verification_success : R.string.verification_fail;
-            Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
+//            //Wait until the tag is ready for be read
+//            do {
+//                boolean boolVar = true;
+//            } while (!mTagManager.ntagReadable());
+//
+//            mTagManager.parseSignResponse();
+//
+//            mTagManager.getKey();
+//            do {
+//                boolean boolVar = true;
+//            } while (!mTagManager.ntagReadable());
+//
+//            mTagManager.parseGetKeyResponse();
+//
+//            boolean verified = mTagManager.checkSign(hashString);
+//            int message = verified ? R.string.verification_success : R.string.verification_fail;
+//            Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -187,11 +201,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (CMSException e) {
-            e.printStackTrace();
-        } catch (OperatorCreationException e) {
+//        } catch (CertificateException e) {
+//            e.printStackTrace();
+//        } catch (CMSException e) {
+//            e.printStackTrace();
+//        } catch (OperatorCreationException e) {
             e.printStackTrace();
         } catch (FormatException e) {
             e.printStackTrace();
