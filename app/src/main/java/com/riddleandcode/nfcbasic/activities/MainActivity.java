@@ -53,13 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private static String GET_BALANCE_URL = "/get_address_balance";
     private static String NETWORK = "/BTCTEST";
 
-    private TextView mTvReadTag;
-    private LinearLayout mInfoLayout;
-    private TextView mNetwork;
-    private TextView mConfirmedBalance;
-    private TextView mUnconfirmedBalance;
-    private EditText mEtMessage;
-
     private ProgressBar mProgressBar;
     private Tag tagFromIntent;
     private TagManager mTagManager;
@@ -83,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (DecoderException e) {
             e.printStackTrace();
         }
-        mTvReadTag.setText(mTagManager.isAvailable() ? R.string.tag_available : R.string.tag_unavailable);
 
 //        try {
 //            checkSign(message, sign,publicKey);
@@ -94,12 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void bindViews(){
         mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
-        mTvReadTag = (TextView)findViewById(R.id.info_test);
-        mInfoLayout = (LinearLayout)findViewById(R.id.info_layout);
-        mEtMessage = (EditText) findViewById(R.id.et_message);
-        mNetwork = (TextView)findViewById(R.id.tv_network);
-        mConfirmedBalance = (TextView)findViewById(R.id.tv_confirmed_balance);
-        mUnconfirmedBalance = (TextView)findViewById(R.id.tv_unconfirmed_balance);
     }
 
     @Override
@@ -133,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
                 mTagManager.ntagInit(tagFromIntent);
                 mTagManager.ntagConnect();
 
-                mMessage = mEtMessage.getText().toString();
+//                mMessage = mEtMessage.getText().toString();
+                mMessage = "Hello world";
                 if(mMessage.isEmpty()){
                     Toast.makeText(this,R.string.empty_message_found,Toast.LENGTH_SHORT).show();
                 }else{
@@ -274,12 +261,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setBalanceInfo(Balance balance){
-        mTvReadTag.setVisibility(View.GONE);
-        mEtMessage.setVisibility(View.GONE);
-        mInfoLayout.setVisibility(View.VISIBLE);
-        mNetwork.setText(getString(R.string.network,balance.getNetwork()));
-        mConfirmedBalance.setText(getString(R.string.confirmed_balance,balance.getConfirmedBalance()));
-        mUnconfirmedBalance.setText(getString(R.string.unconfirmed_balance,balance.getUnconfirmedBalance()));
+
     }
 
     private URL getUrlWithParams(String address){

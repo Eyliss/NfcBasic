@@ -1,49 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.riddleandcode.nfcbasic">
+          package="com.riddleandcode.nfcbasic">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-feature android:name="android.hardware.nfc" android:required="false" />
 
+    <uses-feature
+            android:name="android.hardware.nfc"
+            android:required="false"/>
+
+    <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+        <tech-list>
+            <tech>
+                android.nfc.tech.NfcA
+            </tech>
+            <tech>
+                android.nfc.tech.Ndef
+            </tech>
+        </tech-list>
+    </resources>
+
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.READ_PROFILE"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <application
             android:name=".NfcBasicApplication"
             android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="NFC Transponder"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+            android:icon="@mipmap/ic_launcher"
+            android:label="Demo"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme">
         <activity android:name=".activities.MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
 
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain" />
-            </intent-filter>
 
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
             </intent-filter>
-
-
-
         </activity>
+
         <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="d1b8bb24902f0824b0e51e8c8a522bc3b7dc12c9" />
+                android:name="io.fabric.ApiKey"
+                android:value="d1b8bb24902f0824b0e51e8c8a522bc3b7dc12c9"/>
+
+        <activity
+                android:name=".activities.RegisterActivity">
+        </activity>
     </application>
-
-    <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-        <tech-list>
-            <tech>android.nfc.tech.NfcA</tech>
-            <tech>android.nfc.tech.Ndef</tech>
-        </tech-list>
-    </resources>
-
 
 </manifest>

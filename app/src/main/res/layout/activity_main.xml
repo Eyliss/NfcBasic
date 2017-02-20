@@ -11,59 +11,6 @@
     android:orientation="vertical"
     tools:context="com.riddleandcode.nfcbasic.activities.MainActivity">
 
-
-    <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"
-        android:text="@string/main_title"
-        style="@style/TextAppearance.AppCompat.Title"/>
-    <TextView
-            android:id="@+id/info_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:gravity="center"
-            android:text="@string/tag_available"
-            style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_below="@+id/title"/>
-    <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/message_hint"
-            android:layout_below="@id/info_test"
-            android:id="@+id/et_message"
-            android:gravity="left"
-            style="@style/Base.TextAppearance.AppCompat.Body2"/>
-    <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_below="@id/et_message"
-            android:visibility="gone"
-            android:id="@+id/info_layout">
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:id="@+id/tv_network"
-                style="@style/Base.TextAppearance.AppCompat.Body2"/>
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:id="@+id/tv_confirmed_balance"
-                style="@style/Base.TextAppearance.AppCompat.Body2"/>
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:id="@+id/tv_unconfirmed_balance"
-                style="@style/Base.TextAppearance.AppCompat.Body2"/>
-    </LinearLayout>
     <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
