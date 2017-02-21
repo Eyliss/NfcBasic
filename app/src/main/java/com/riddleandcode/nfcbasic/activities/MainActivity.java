@@ -5,18 +5,13 @@ import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.managers.TagManager;
 import com.riddleandcode.nfcbasic.models.Balance;
 import com.riddleandcode.nfcbasic.utils.Constants;
-import com.riddleandcode.nfcbasic.utils.Crypto;
 import com.riddleandcode.nfcbasic.utils.Util;
 
 import io.fabric.sdk.android.Fabric;
 
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.spongycastle.cms.CMSException;
-import org.spongycastle.operator.OperatorCreationException;
-
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -28,10 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -43,7 +35,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.security.cert.CertificateException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -121,12 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
 //                mMessage = mEtMessage.getText().toString();
                 mMessage = "Hello world";
-                if(mMessage.isEmpty()){
-                    Toast.makeText(this,R.string.empty_message_found,Toast.LENGTH_SHORT).show();
-                }else{
-                    signMessageAndVerify();
-//                    fetchAccountData();
-                }
+                signMessageAndVerify();
 
                 mTagManager.setTimeout(100);
                 mTagManager.ntagClose();
