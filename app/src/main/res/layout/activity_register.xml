@@ -7,6 +7,9 @@
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
               tools:context="com.riddleandcode.nfcbasic.activities.RegisterActivity">
+    <View android:layout_width="match_parent"
+          android:layout_height="match_parent"
+    android:id="@+id/register_container">
     <TextView
             android:id="@+id/title"
             android:text="@string/main_title"
@@ -63,8 +66,9 @@
                 android:textColor="@color/tuna"
                 android:gravity="center"/>
     </LinearLayout>
+    </View>
     <RelativeLayout
-            android:id="@+id/register_container"
+            android:id="@+id/login_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
     </RelativeLayout>

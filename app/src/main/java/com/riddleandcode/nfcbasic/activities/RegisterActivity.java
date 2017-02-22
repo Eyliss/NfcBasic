@@ -50,6 +50,8 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
     // UI references.
     private Button mStartButton;
     private Button mSignUpButton;
+    private View mRegisterContainer;
+    private View mLoginContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
 
         mStartButton = (Button) findViewById(R.id.start_demo_button);
         mSignUpButton = (Button) findViewById(R.id.sign_up_button);
+        mRegisterContainer = (View) findViewById(R.id.register_container);
 
         mStartButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -76,9 +79,10 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
     }
 
     private void showLoginFragment(){
+        mRegisterContainer.setVisibility(View.GONE);
         // add fragment to the fragment container layout
         LoginFragment mRegisterFragment = LoginFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().add(R.id.register_container, mRegisterFragment, LOGIN_FRAGMENT_TAG).commitAllowingStateLoss();
+        getSupportFragmentManager().beginTransaction().replace(R.id.login_container, mRegisterFragment, LOGIN_FRAGMENT_TAG).commitAllowingStateLoss();
     }
 
     private void goToSignUpScreen(){
@@ -89,6 +93,17 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
     public void onLoginSuccess() {
         Intent intent = new Intent(this,MainScreenSlidePagerActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mRegisterContainer.getVisibility() == View.VISIBLE){
+            finish();
+        }else{
+            mRegisterContainer.setVisibility(View.VISIBLE);
+            mLoginContainer.setVisibility(View.GONE);
+
+        }
     }
 }
 
