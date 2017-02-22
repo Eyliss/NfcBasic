@@ -29,7 +29,7 @@ public class ValidateFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_validate, container, false);
 
-        mValidateButton = (Button)rootView.findViewById(R.id.verify_button);
+        mValidateButton = (Button)rootView.findViewById(R.id.validate_button);
         mValidateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

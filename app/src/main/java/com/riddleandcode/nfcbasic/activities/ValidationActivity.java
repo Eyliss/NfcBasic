@@ -36,9 +36,11 @@ public class ValidationActivity extends AppCompatActivity {
 
     private static final String TAG = ValidationActivity.class.getSimpleName();
 
-    private static String API_URL = "https://chain.so/api/v2";
-    private static String GET_BALANCE_URL = "/get_address_balance";
-    private static String NETWORK = "/BTCTEST";
+    private static String API_URL = "http://localhost:9984/api/v1";
+    private static String GET_TRANSACTION = "/transactions";
+//    private static String API_URL = "https://chain.so/api/v2";
+//    private static String GET_BALANCE_URL = "/get_address_balance";
+//    private static String NETWORK = "/BTCTEST";
 
     private ProgressBar mProgressBar;
     private Tag tagFromIntent;
@@ -135,7 +137,8 @@ public class ValidationActivity extends AppCompatActivity {
 //            String address = Util.bytesToHex(mTagManager.getPublicKey());
             try {
                 //Hacked address until the device read a correct one from the antenna
-                URL url = getUrlWithParams("mobyyYFM7HafjFBtca9PAyN7TUAE5uiZFf");
+//                URL url = getUrlWithParams("mobyyYFM7HafjFBtca9PAyN7TUAE5uiZFf");
+                URL url = getUrlWithParams("da7a66280914be1a8f0496598fc15f763cbd70b486f12ee815bf1d8815565c2b");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 try {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -168,7 +171,7 @@ public class ValidationActivity extends AppCompatActivity {
             JSONObject data = new JSONObject(response);
             if (data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)) {
                 mResultMessage.setText(R.string.transaction_validated);
-                setBalanceInfo(new Balance(data.getJSONObject(Constants.JSON_DATA)));
+//                setBalanceInfo(new Balance(data.getJSONObject(Constants.JSON_DATA)));
             }else{
                 mResultMessage.setText(R.string.transaction_not_validated);
             }
@@ -185,7 +188,7 @@ public class ValidationActivity extends AppCompatActivity {
 
     private URL getUrlWithParams(String address) {
         try {
-            return new URL(getBalanceUrl() + NETWORK + "/" + address);
+            return new URL(getBalanceUrl()+ "/" + address);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -193,6 +196,6 @@ public class ValidationActivity extends AppCompatActivity {
     }
 
     private String getBalanceUrl() {
-        return API_URL + GET_BALANCE_URL;
+        return API_URL + GET_TRANSACTION;
     }
 }

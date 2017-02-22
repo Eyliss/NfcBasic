@@ -49,6 +49,7 @@
             android:textAllCaps="false"
             android:background="@drawable/rounded_button_layout"
             android:backgroundTint="@color/tuna"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white"
+    android:textSize="18sp"/>
 </RelativeLayout>
 </LinearLayout>

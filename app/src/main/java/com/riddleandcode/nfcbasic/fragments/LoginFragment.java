@@ -10,8 +10,11 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.riddleandcode.nfcbasic.R;
 
@@ -29,6 +32,9 @@ public class LoginFragment extends Fragment {
 
     private EditText mEmailView;
     private EditText mPasswordView;
+
+    private Button mLoginButton;
+    private TextView mCreateAccount;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -60,6 +66,22 @@ public class LoginFragment extends Fragment {
         mProgressView = (ProgressBar)rootView.findViewById(R.id.login_progress);
         mEmailView = (EditText) rootView.findViewById(R.id.email);
         mPasswordView = (EditText) rootView.findViewById(R.id.password);
+        mLoginButton = (Button) rootView.findViewById(R.id.log_in_button);
+        mCreateAccount = (TextView) rootView.findViewById(R.id.create_account);
+
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                attemptLogin();
+            }
+        });
+
+        mCreateAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),getString(R.string.feature_not_available),Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //Set demo credentials
         mEmailView.setText(DUMMY_CREDENTIALS[0]);
@@ -145,15 +167,6 @@ public class LoginFragment extends Fragment {
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
             return true;
         }
 

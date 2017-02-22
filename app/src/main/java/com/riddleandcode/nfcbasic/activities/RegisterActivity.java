@@ -1,34 +1,16 @@
 package com.riddleandcode.nfcbasic.activities;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
+
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.fragments.LoginFragment;
@@ -50,8 +32,8 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
     // UI references.
     private Button mStartButton;
     private Button mSignUpButton;
-    private View mRegisterContainer;
-    private View mLoginContainer;
+    private RelativeLayout mRegisterContainer;
+    private RelativeLayout mLoginContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +42,8 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
 
         mStartButton = (Button) findViewById(R.id.start_demo_button);
         mSignUpButton = (Button) findViewById(R.id.sign_up_button);
-        mRegisterContainer = (View) findViewById(R.id.register_container);
+        mRegisterContainer = (RelativeLayout) findViewById(R.id.register_container);
+        mLoginContainer = (RelativeLayout)findViewById(R.id.login_container);
 
         mStartButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -80,6 +63,7 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
 
     private void showLoginFragment(){
         mRegisterContainer.setVisibility(View.GONE);
+        mLoginContainer.setVisibility(View.VISIBLE);
         // add fragment to the fragment container layout
         LoginFragment mRegisterFragment = LoginFragment.newInstance();
         getSupportFragmentManager().beginTransaction().replace(R.id.login_container, mRegisterFragment, LOGIN_FRAGMENT_TAG).commitAllowingStateLoss();
@@ -102,7 +86,6 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
         }else{
             mRegisterContainer.setVisibility(View.VISIBLE);
             mLoginContainer.setVisibility(View.GONE);
-
         }
     }
 }

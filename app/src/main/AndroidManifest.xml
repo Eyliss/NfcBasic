@@ -46,18 +46,22 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activities.MainScreenSlidePagerActivity">
+        </activity>
         <meta-data
                 android:name="io.fabric.ApiKey"
                 android:value="d1b8bb24902f0824b0e51e8c8a522bc3b7dc12c9"/>
 
-        <activity android:name=".activities.RegisterActivity">
+        <activity android:name=".activities.RegisterActivity"
+        android:parentActivityName=".activities.MainScreenSlidePagerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.ValidationActivity">
+        <activity android:name=".activities.ValidationActivity"
+                  android:parentActivityName=".activities.MainScreenSlidePagerActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 

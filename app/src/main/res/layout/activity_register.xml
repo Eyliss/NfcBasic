@@ -7,66 +7,66 @@
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
               tools:context="com.riddleandcode.nfcbasic.activities.RegisterActivity">
-    <View android:layout_width="match_parent"
+    <RelativeLayout android:layout_width="match_parent"
           android:layout_height="match_parent"
-    android:id="@+id/register_container">
-    <TextView
-            android:id="@+id/title"
-            android:text="@string/main_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="32dp"
-            android:textColor="@color/tuna"
-            android:gravity="center"/>
-    <ImageView
-            android:id="@+id/icon_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher" android:layout_below="@+id/title"/>
-    <ImageView
-            android:id="@+id/map_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_map"
-            android:layout_above="@+id/email_login_form"
-            android:layout_below="@+id/icon_image"/>
-    <LinearLayout
-            android:id="@+id/email_login_form"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentBottom="true">
-
-        <Button
-                android:id="@+id/start_demo_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/start_demo"
-                android:textAllCaps="false"
-                android:background="@drawable/rounded_button_layout"
-                android:backgroundTint="@color/amaranth"
-                android:textColor="@android:color/white"/>
-        <Button
-                android:id="@+id/sign_up_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/sign_up"
-                android:textAllCaps="false"
-                android:background="@drawable/rounded_button_layout"
-                android:backgroundTint="@color/tuna"
-                android:textColor="@android:color/white"/>
+            android:id="@+id/register_container">
         <TextView
+                android:id="@+id/title"
+                android:text="@string/main_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/signature"
-                style="@style/Base.TextAppearance.AppCompat.Small"
+                android:textSize="32dp"
                 android:textColor="@color/tuna"
                 android:gravity="center"/>
-    </LinearLayout>
-    </View>
+        <ImageView
+                android:id="@+id/icon_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_launcher" android:layout_below="@+id/title"/>
+        <ImageView
+                android:id="@+id/map_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_map"
+                android:layout_above="@+id/email_login_form"
+                android:layout_below="@+id/icon_image"/>
+        <LinearLayout
+                android:id="@+id/email_login_form"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentBottom="true">
+
+            <Button
+                    android:id="@+id/start_demo_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/start_demo"
+                    android:textAllCaps="false"
+                    android:background="@drawable/rounded_button_layout"
+                    android:backgroundTint="@color/amaranth"
+                    android:textColor="@android:color/white"/>
+            <Button
+                    android:id="@+id/sign_up_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/sign_up"
+                    android:textAllCaps="false"
+                    android:background="@drawable/rounded_button_layout"
+                    android:backgroundTint="@color/tuna"
+                    android:textColor="@android:color/white"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/signature"
+                    style="@style/Base.TextAppearance.AppCompat.Small"
+                    android:textColor="@color/tuna"
+                    android:gravity="center"/>
+        </LinearLayout>
+    </RelativeLayout>
     <RelativeLayout
             android:id="@+id/login_container"
             android:layout_width="match_parent"

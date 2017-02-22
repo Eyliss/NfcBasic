@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.activities.ValidationActivity;
+import com.riddleandcode.nfcbasic.activities.VerificationActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,7 +42,7 @@ public class VerifyFragment extends Fragment {
     }
 
     private void goToVerifyScreen(){
-        Intent intent = new Intent(getActivity(), VerifyFragment.class);
+        Intent intent = new Intent(getActivity(), VerificationActivity.class);
         startActivity(intent);
     }
 }

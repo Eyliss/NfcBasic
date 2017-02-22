@@ -2,22 +2,17 @@ package com.riddleandcode.nfcbasic.activities;
 
 import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.adapters.MainScreenSlidePagerAdapter;
-import com.riddleandcode.nfcbasic.fragments.ValidateFragment;
-import com.riddleandcode.nfcbasic.fragments.VerifyFragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * Created by Eyliss on 2/21/17.
  */
 
-public class MainScreenSlidePagerActivity extends FragmentActivity {
+public class MainScreenSlidePagerActivity extends AppCompatActivity {
 
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;

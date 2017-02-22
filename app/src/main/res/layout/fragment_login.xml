@@ -84,6 +84,7 @@
                     android:layout_marginRight="5dp"
                     android:gravity="right"/>
             <TextView
+                    android:id="@+id/create_account"
                     android:layout_width="0dp"
                     android:layout_weight="0.5"
                     android:layout_height="match_parent"
@@ -101,5 +102,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:layout_centerInParent="true"
             android:visibility="gone"/>
 </RelativeLayout>
