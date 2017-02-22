@@ -51,8 +51,9 @@
                   android:gravity="center"
                   android:textSize="32sp"
                   android:layout_marginTop="@dimen/activity_vertical_margin"/>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                  android:text="@string/transaction_validated"
+        <TextView
+                android:id="@+id/result_message"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:textColor="@color/tuna"
                   android:layout_gravity="center_vertical"
                   android:gravity="center"

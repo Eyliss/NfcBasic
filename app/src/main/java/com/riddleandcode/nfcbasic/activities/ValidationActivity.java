@@ -5,7 +5,6 @@ import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.managers.TagManager;
 import com.riddleandcode.nfcbasic.models.Balance;
 import com.riddleandcode.nfcbasic.utils.Constants;
-import com.riddleandcode.nfcbasic.utils.Util;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -15,7 +14,6 @@ import org.json.JSONObject;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.nfc.FormatException;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
@@ -24,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -45,7 +44,9 @@ public class ValidationActivity extends AppCompatActivity {
     private Tag tagFromIntent;
     private TagManager mTagManager;
 
-    private String mMessage;
+    private TextView mResultMessage;
+    private TextView mResult;
+    private TextView mResponseDetails;
 
     public ValidationActivity() throws DecoderException {
     }
@@ -69,6 +70,9 @@ public class ValidationActivity extends AppCompatActivity {
 
     private void bindViews() {
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mResultMessage = (TextView) findViewById(R.id.result_message);
+        mResult = (TextView) findViewById(R.id.validation_result);
+        mResponseDetails = (TextView) findViewById(R.id.validation_response_details);
     }
 
     @Override
@@ -163,8 +167,10 @@ public class ValidationActivity extends AppCompatActivity {
         try {
             JSONObject data = new JSONObject(response);
             if (data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)) {
-                Balance balance = new Balance(data.getJSONObject(Constants.JSON_DATA));
-                setBalanceInfo(balance);
+                mResultMessage.setText(R.string.transaction_validated);
+                setBalanceInfo(new Balance(data.getJSONObject(Constants.JSON_DATA)));
+            }else{
+                mResultMessage.setText(R.string.transaction_not_validated);
             }
 
         } catch (JSONException e) {
@@ -173,7 +179,8 @@ public class ValidationActivity extends AppCompatActivity {
     }
 
     private void setBalanceInfo(Balance balance) {
-
+        mResult.setText("Provenence and ownership of the product are valid and legitimate");
+        mResponseDetails.setText("http://localhost:9984/api/v1/transactions/ da7a66280914be1a8f0496598fc15f763cbd70b 486f12ee815bf1d8815565c2b");
     }
 
     private URL getUrlWithParams(String address) {

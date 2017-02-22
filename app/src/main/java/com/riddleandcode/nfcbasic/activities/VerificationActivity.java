@@ -3,6 +3,7 @@ package com.riddleandcode.nfcbasic.activities;
 import com.crashlytics.android.Crashlytics;
 import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.managers.TagManager;
+import com.riddleandcode.nfcbasic.utils.Util;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -17,7 +18,9 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.security.Security;
@@ -30,6 +33,10 @@ public class VerificationActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private Tag tagFromIntent;
     private TagManager mTagManager;
+
+    private TextView mResultMessage;
+    private TextView mResult;
+    private TextView mResponseDetails;
 
     private String mMessage;
 
@@ -54,6 +61,9 @@ public class VerificationActivity extends AppCompatActivity {
 
     private void bindViews(){
         mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
+        mResultMessage = (TextView) findViewById(R.id.result_message);
+        mResult = (TextView) findViewById(R.id.verification_result);
+        mResponseDetails = (TextView) findViewById(R.id.verification_response_details);
     }
 
     @Override
@@ -89,6 +99,7 @@ public class VerificationActivity extends AppCompatActivity {
 
 //                mMessage = mEtMessage.getText().toString();
 //                mMessage = "Hello world";
+                mProgressBar.setProgress(View.VISIBLE);
                 signMessageAndVerify();
 
                 mTagManager.setTimeout(100);
@@ -131,8 +142,11 @@ public class VerificationActivity extends AppCompatActivity {
 //            mTagManager.parseGetKeyResponse();
 //
             boolean verified = mTagManager.checkSign();
-            int message = verified ? R.string.verification_success : R.string.verification_fail;
-            Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
+            mProgressBar.setProgress(View.GONE);
+
+            mResultMessage.setText(verified ? R.string.verification_successfully : R.string.verification_fail);
+            mResult.setText("The product is an original produced by the brand A in 2017");
+            mResponseDetails.setText(Util.bytesToHex(mTagManager.getSignature()));
 
         } catch (CertificateException e) {
             e.printStackTrace();
