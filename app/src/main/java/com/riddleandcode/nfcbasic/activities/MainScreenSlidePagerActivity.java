@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -53,6 +54,8 @@ public class MainScreenSlidePagerActivity extends AppCompatActivity {
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new MainScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabDots);
+        tabLayout.setupWithViewPager(mPager, true);
 
         try {
             mTagManager = new TagManager(this);
