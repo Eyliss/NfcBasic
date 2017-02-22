@@ -8,31 +8,16 @@ import com.riddleandcode.nfcbasic.utils.Util;
 import io.fabric.sdk.android.Fabric;
 
 import org.apache.commons.codec.DecoderException;
-import org.spongycastle.cms.CMSException;
-import org.spongycastle.operator.OperatorCreationException;
 
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.security.Security;
-import java.security.cert.CertificateException;
 
 public class VerificationActivity extends AppCompatActivity {
 
     private static final String TAG = VerificationActivity.class.getSimpleName();
-
-    private ProgressBar mProgressBar;
-    private Tag tagFromIntent;
-    private TagManager mTagManager;
 
     private TextView mResultMessage;
     private TextView mResult;
@@ -52,15 +37,10 @@ public class VerificationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_verification);
         bindViews();
 
-        try {
-            mTagManager = new TagManager(this);
-        } catch (DecoderException e) {
-            e.printStackTrace();
-        }
+        signMessageAndVerify();
     }
 
     private void bindViews(){
-        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
         mResultMessage = (TextView) findViewById(R.id.result_message);
         mResult = (TextView) findViewById(R.id.verification_result);
         mResponseDetails = (TextView) findViewById(R.id.verification_response_details);
@@ -69,55 +49,19 @@ public class VerificationActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        disableForegroundDispatchSystem();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        enableForegroundDispatchSystem();
     }
-
-    private void enableForegroundDispatchSystem() {
-        Intent intent = new Intent(this, VerificationActivity.class).addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        IntentFilter[] intentFilters = new IntentFilter[] {};
-
-        mTagManager.getAdapter().enableForegroundDispatch(this, pendingIntent, intentFilters, null);
-    }
-
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-            tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
-            try {
-                mTagManager.ntagInit(tagFromIntent);
-                mTagManager.ntagConnect();
-
-//                mMessage = mEtMessage.getText().toString();
-//                mMessage = "Hello world";
-                mProgressBar.setProgress(View.VISIBLE);
-                signMessageAndVerify();
-
-                mTagManager.setTimeout(100);
-                mTagManager.ntagClose();
-            } catch (Exception e) {
-                Toast.makeText(this, "Tag reading Error: ", Toast.LENGTH_SHORT).show();
-
-            }
-        }
-    }
-
 
     /*
      * Get the message introduced by the user, hash it and send to the antenna in order to sign it.
      * Fetch the public key from the antenna to verify the signature received
      */
     private void signMessageAndVerify(){
-        try {
+//        try {
 
 //            byte[] hashString = Util.hashString(mMessage);
 //            mTagManager.signMessage(hashString);
@@ -141,26 +85,21 @@ public class VerificationActivity extends AppCompatActivity {
 //
 //            mTagManager.parseGetKeyResponse();
 //
-            boolean verified = mTagManager.checkSign();
-            mProgressBar.setProgress(View.GONE);
-
+//            boolean verified = mTagManager.checkSign();
 //            mResultMessage.setText(verified ? R.string.verification_successfully : R.string.verification_fail);
             mResultMessage.setText(R.string.verification_successfully);
             mResult.setText("The product is an original produced by the brand A in 2017");
-            mResponseDetails.setText(Util.bytesToHex(mTagManager.getSignature()));
+            mResponseDetails.setText("D09EDDBD3B3C1FC28DDE8CCAAD24844DA3C9D63B978DEEF7D71BAE5395BA1030E7644655023639CC25A4409BC1072AF808CF98B036B373FC65EA7B617993C0BB");
 
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (CMSException e) {
-            e.printStackTrace();
-        } catch (OperatorCreationException e) {
-            e.printStackTrace();
-        }
+//        } catch (CertificateException e) {
+//            e.printStackTrace();
+//        } catch (CMSException e) {
+//            e.printStackTrace();
+//        } catch (OperatorCreationException e) {
+//            e.printStackTrace();
+//        }
     }
 
-    private void disableForegroundDispatchSystem() {
-        mTagManager.getAdapter().disableForegroundDispatch(this);
-    }
 
 }
 

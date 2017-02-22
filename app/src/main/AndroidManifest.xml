@@ -34,7 +34,9 @@
             android:theme="@style/AppTheme">
         <activity android:name=".activities.VerificationActivity"
                   android:parentActivityName=".activities.MainScreenSlidePagerActivity">
+        </activity>
 
+        <activity android:name=".activities.MainScreenSlidePagerActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 
@@ -45,9 +47,6 @@
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
             </intent-filter>
-        </activity>
-
-        <activity android:name=".activities.MainScreenSlidePagerActivity">
         </activity>
         <meta-data
                 android:name="io.fabric.ApiKey"
@@ -62,16 +61,6 @@
         </activity>
         <activity android:name=".activities.ValidationActivity"
                   android:parentActivityName=".activities.MainScreenSlidePagerActivity">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:mimeType="text/plain"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.nfc.action.TECH_DISCOVERED"/>
-            </intent-filter>
         </activity>
     </application>
 

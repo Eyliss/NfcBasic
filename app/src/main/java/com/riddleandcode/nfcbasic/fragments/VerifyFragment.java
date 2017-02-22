@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.riddleandcode.nfcbasic.R;
+import com.riddleandcode.nfcbasic.activities.MainScreenSlidePagerActivity;
 import com.riddleandcode.nfcbasic.activities.ValidationActivity;
 import com.riddleandcode.nfcbasic.activities.VerificationActivity;
 
@@ -35,7 +36,9 @@ public class VerifyFragment extends Fragment {
         mVerifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToVerifyScreen();
+//                goToVerifyScreen();
+                ((MainScreenSlidePagerActivity)getActivity()).showProgress();
+
             }
         });
         return rootView;
