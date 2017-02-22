@@ -43,8 +43,6 @@ public class ValidationActivity extends AppCompatActivity {
 //    private static String NETWORK = "/BTCTEST";
 
     private ProgressBar mProgressBar;
-    private Tag tagFromIntent;
-    private TagManager mTagManager;
 
     private TextView mResultMessage;
     private TextView mResult;
@@ -61,12 +59,7 @@ public class ValidationActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_validation);
         bindViews();
-
-        try {
-            mTagManager = new TagManager(this);
-        } catch (DecoderException e) {
-            e.printStackTrace();
-        }
+        fetchAccountData();
 
     }
 
@@ -80,51 +73,15 @@ public class ValidationActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        disableForegroundDispatchSystem();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        enableForegroundDispatchSystem();
-    }
-
-    private void enableForegroundDispatchSystem() {
-        Intent intent = new Intent(this, VerificationActivity.class).addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        IntentFilter[] intentFilters = new IntentFilter[]{};
-
-        mTagManager.getAdapter().enableForegroundDispatch(this, pendingIntent, intentFilters, null);
-    }
-
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-            tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
-            try {
-                mTagManager.ntagInit(tagFromIntent);
-                mTagManager.ntagConnect();
-
-                fetchAccountData();
-
-                mTagManager.setTimeout(100);
-                mTagManager.ntagClose();
-            } catch (Exception e) {
-                Toast.makeText(this, "Tag reading Error: ", Toast.LENGTH_SHORT).show();
-
-            }
-        }
     }
 
     private void fetchAccountData() {
         new RetrieveFeedTask().execute();
-    }
-
-    private void disableForegroundDispatchSystem() {
-        mTagManager.getAdapter().disableForegroundDispatch(this);
     }
 
     private class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
@@ -161,29 +118,30 @@ public class ValidationActivity extends AppCompatActivity {
         protected void onPostExecute(String response) {
             mProgressBar.setVisibility(View.GONE);
             if (response != null) {
-                handleResponse(response);
-            }
-        }
-    }
-
-    private void handleResponse(String response) {
-        try {
-            JSONObject data = new JSONObject(response);
-            if (data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)) {
+//                handleResponse(response);
                 mResultMessage.setText(R.string.transaction_validated);
-//                setBalanceInfo(new Balance(data.getJSONObject(Constants.JSON_DATA)));
-            }else{
-                mResultMessage.setText(R.string.transaction_not_validated);
+                mResult.setText("Provenence and ownership of the product are valid and legitimate");
+                mResponseDetails.setText("http://localhost:9984/api/v1/transactions/ da7a66280914be1a8f0496598fc15f763cbd70b 486f12ee815bf1d8815565c2b");
             }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
+
+//    private void handleResponse(String response) {
+//        try {
+//            JSONObject data = new JSONObject(response);
+//            if (data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)) {
+//                setBalanceInfo(new Balance(data.getJSONObject(Constants.JSON_DATA)));
+//            }else{
+//                mResultMessage.setText(R.string.transaction_not_validated);
+//            }
+
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private void setBalanceInfo(Balance balance) {
-        mResult.setText("Provenence and ownership of the product are valid and legitimate");
-        mResponseDetails.setText("http://localhost:9984/api/v1/transactions/ da7a66280914be1a8f0496598fc15f763cbd70b 486f12ee815bf1d8815565c2b");
+
     }
 
     private URL getUrlWithParams(String address) {

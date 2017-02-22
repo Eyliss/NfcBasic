@@ -31,8 +31,6 @@ public class VerificationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-        Fabric.with(this, new Crashlytics());
 
         setContentView(R.layout.activity_verification);
         bindViews();
