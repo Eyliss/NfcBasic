@@ -67,13 +67,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-    android:padding="@dimen/activity_horizontal_margin">
+    android:padding="10dp">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/result"
                   android:textColor="@color/tuna"
                   android:gravity="left"
-                  android:textSize="16sp"
-                  android:layout_marginTop="@dimen/activity_vertical_margin"/>
+                  android:textSize="16sp"/>
         <TextView
                 android:id="@+id/validation_result"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -89,14 +88,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/activity_horizontal_margin">
+            android:padding="10dp">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/response_details"
                   android:textColor="@color/tuna"
                   android:layout_gravity="center_vertical"
                   android:gravity="left"
-                  android:textSize="16sp"
-                  android:layout_marginTop="@dimen/activity_vertical_margin"/>
+                  android:textSize="16sp"/>
         <TextView
                 android:id="@+id/validation_response_details"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
