@@ -32,7 +32,7 @@
             android:label="Demo"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activities.VerificationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -54,8 +54,9 @@
                 android:name="io.fabric.ApiKey"
                 android:value="d1b8bb24902f0824b0e51e8c8a522bc3b7dc12c9"/>
 
-        <activity
-                android:name=".activities.RegisterActivity">
+        <activity android:name=".activities.RegisterActivity">
+        </activity>
+        <activity android:name=".activities.ValidationActivity">
         </activity>
     </application>
 

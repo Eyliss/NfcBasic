@@ -26,14 +26,13 @@ import java.util.Arrays;
 
 public class TagManager {
 
+    byte[] publicKey = Hex.decodeHex("049a55ad1e210cd113457ccd3465b930c9e7ade5e760ef64b63142dad43a308ed08e2d85632e8ff0322d3c7fda14409eafdc4c5b8ee0882fe885c92e3789c36a7a".toCharArray());
+    byte[] signature = Hex.decodeHex("304402205fef461a4714a18a5ca6dce6d5ab8604f09f3899313a28ab430eb9860f8be9d602203c8d36446be85383af3f2e8630f40c4172543322b5e8973e03fff2309755e654".toCharArray());
+    byte[] message = Hex.decodeHex("54686973206973206a75737420736f6d6520706f696e746c6573732064756d6d7920737472696e672e205468616e6b7320616e7977617920666f722074616b696e67207468652074696d6520746f206465636f6465206974203b2d29".toCharArray());
 
-//    byte[] publicKey = Hex.decodeHex("049a55ad1e210cd113457ccd3465b930c9e7ade5e760ef64b63142dad43a308ed08e2d85632e8ff0322d3c7fda14409eafdc4c5b8ee0882fe885c92e3789c36a7a".toCharArray());
-    //    byte[] message = Hex.decodeHex("54686973206973206a75737420736f6d6520706f696e746c6573732064756d6d7920737472696e672e205468616e6b7320616e7977617920666f722074616b696e67207468652074696d6520746f206465636f6465206974203b2d29".toCharArray());
-//    byte[] sign = Hex.decodeHex("304402205fef461a4714a18a5ca6dce6d5ab8604f09f3899313a28ab430eb9860f8be9d602203c8d36446be85383af3f2e8630f40c4172543322b5e8973e03fff2309755e654".toCharArray());
-
-    byte[] publicKey;
-    byte[] message;
-    byte[] signature;
+//    byte[] publicKey;
+//    byte[] message;
+//    byte[] signature;
 
     private NfcAdapter nfcAdapter;
     private NfcA nfca;
@@ -279,6 +278,11 @@ public class TagManager {
      * @return true if the signature is that of the message with the expected private key
      */
     public boolean checkSign(byte[] message) throws CertificateException, CMSException, OperatorCreationException {
+        return Crypto.verify(message, signature, publicKey);
+    }
+
+    //TODO: Remove after demo
+    public boolean checkSign() throws CertificateException, CMSException, OperatorCreationException {
         return Crypto.verify(message, signature, publicKey);
     }
 

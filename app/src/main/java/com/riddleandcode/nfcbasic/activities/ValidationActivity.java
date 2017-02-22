@@ -27,18 +27,15 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 
-public class MainActivity extends AppCompatActivity {
+public class ValidationActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = ValidationActivity.class.getSimpleName();
 
     private static String API_URL = "https://chain.so/api/v2";
     private static String GET_BALANCE_URL = "/get_address_balance";
@@ -50,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String mMessage;
 
-    public MainActivity() throws DecoderException {
+    public ValidationActivity() throws DecoderException {
     }
 
     @Override
@@ -59,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
         Fabric.with(this, new Crashlytics());
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_validation);
         bindViews();
 
         try {
@@ -68,15 +65,10 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-//        try {
-//            checkSign(message, sign,publicKey);
-//        } catch (CertificateException | CMSException | OperatorCreationException e) {
-//            e.printStackTrace();
-//        }
     }
 
-    private void bindViews(){
-        mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
+    private void bindViews() {
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
     @Override
@@ -92,27 +84,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void enableForegroundDispatchSystem() {
-        Intent intent = new Intent(this, MainActivity.class).addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+        Intent intent = new Intent(this, VerificationActivity.class).addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        IntentFilter[] intentFilters = new IntentFilter[] {};
+        IntentFilter[] intentFilters = new IntentFilter[]{};
 
         mTagManager.getAdapter().enableForegroundDispatch(this, pendingIntent, intentFilters, null);
     }
 
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
+        if (intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
             tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
             try {
                 mTagManager.ntagInit(tagFromIntent);
                 mTagManager.ntagConnect();
 
-//                mMessage = mEtMessage.getText().toString();
-                mMessage = "Hello world";
-                signMessageAndVerify();
+                fetchAccountData();
 
                 mTagManager.setTimeout(100);
                 mTagManager.ntagClose();
@@ -123,69 +113,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    /*
-     * Get the message introduced by the user, hash it and send to the antenna in order to sign it.
-     * Fetch the public key from the antenna to verify the signature received
-     */
-    private void signMessageAndVerify(){
-        try {
-
-            byte[] hashString = Util.hashString(mMessage);
-//            mTagManager.signMessage(hashString);
-
-//            Log.d(TAG,Util.bytesToHex(mTagManager.getMessage()));
-            byte[] data0 = {(byte) 0x41, (byte) 0x21 ,(byte) 0x31 ,(byte) 0x41};
-            byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
-            byte[] data2 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
-            byte[] data3 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
-
-
-            mTagManager.ntagSectorSelect((byte) 0x01);
-            mTagManager.ntagWrite(data0, (byte) 0x04);
-            mTagManager.ntagWrite(data1, (byte) 0x05);
-            mTagManager.ntagWrite(data2, (byte) 0x06);
-            mTagManager.ntagWrite(data3, (byte) 0x07);
-
-            mTagManager.ntagRead((byte) 0x04);
-            Log.d(TAG,Util.bytesToHex(mTagManager.ntagGetLastAnswer()));
-
-//            //Wait until the tag is ready for be read
-//            do {
-//                boolean boolVar = true;
-//            } while (!mTagManager.ntagReadable());
-//
-//            mTagManager.parseSignResponse();
-//
-//            mTagManager.getKey();
-//            do {
-//                boolean boolVar = true;
-//            } while (!mTagManager.ntagReadable());
-//
-//            mTagManager.parseGetKeyResponse();
-//
-//            boolean verified = mTagManager.checkSign(hashString);
-//            int message = verified ? R.string.verification_success : R.string.verification_fail;
-//            Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-//        } catch (CertificateException e) {
-//            e.printStackTrace();
-//        } catch (CMSException e) {
-//            e.printStackTrace();
-//        } catch (OperatorCreationException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void fetchAccountData(){
+    private void fetchAccountData() {
         new RetrieveFeedTask().execute();
     }
 
@@ -200,10 +128,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected String doInBackground(Void... urls) {
-            String address = Util.bytesToHex(mTagManager.getPublicKey());
+//            String address = Util.bytesToHex(mTagManager.getPublicKey());
             try {
                 //Hacked address until the device read a correct one from the antenna
-                URL url = getUrlWithParams(address);
+                URL url = getUrlWithParams("mobyyYFM7HafjFBtca9PAyN7TUAE5uiZFf");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 try {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -214,12 +142,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     bufferedReader.close();
                     return stringBuilder.toString();
-                }
-                finally{
+                } finally {
                     urlConnection.disconnect();
                 }
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
                 return null;
             }
@@ -227,16 +153,16 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(String response) {
             mProgressBar.setVisibility(View.GONE);
-            if(response != null){
+            if (response != null) {
                 handleResponse(response);
             }
         }
     }
 
-    private void handleResponse(String response){
+    private void handleResponse(String response) {
         try {
             JSONObject data = new JSONObject(response);
-            if(data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)){
+            if (data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)) {
                 Balance balance = new Balance(data.getJSONObject(Constants.JSON_DATA));
                 setBalanceInfo(balance);
             }
@@ -246,11 +172,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setBalanceInfo(Balance balance){
+    private void setBalanceInfo(Balance balance) {
 
     }
 
-    private URL getUrlWithParams(String address){
+    private URL getUrlWithParams(String address) {
         try {
             return new URL(getBalanceUrl() + NETWORK + "/" + address);
         } catch (MalformedURLException e) {
@@ -259,9 +185,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    private String getBalanceUrl(){
+    private String getBalanceUrl() {
         return API_URL + GET_BALANCE_URL;
     }
-
 }
-
