@@ -45,7 +45,7 @@
                 android:backgroundTint="@color/amaranth"
                 android:textColor="@android:color/white"/>
         <Button
-                android:id="@+id/email_log_in_button"
+                android:id="@+id/sign_up_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -68,13 +68,5 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
     </RelativeLayout>
-    <!-- Login progress -->
-    <ProgressBar
-            android:id="@+id/login_progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"/>
 
 </RelativeLayout>
