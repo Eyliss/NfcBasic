@@ -20,7 +20,6 @@ import android.support.v4.view.ViewPager;
 public class MainScreenSlidePagerActivity extends FragmentActivity {
 
     private ViewPager mPager;
-
     private PagerAdapter mPagerAdapter;
 
     @Override
