@@ -60,7 +60,7 @@ public class VerificationActivity extends AppCompatActivity {
     }
 
     private void bindViews(){
-        mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
+        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
         mResultMessage = (TextView) findViewById(R.id.result_message);
         mResult = (TextView) findViewById(R.id.verification_result);
         mResponseDetails = (TextView) findViewById(R.id.verification_response_details);
