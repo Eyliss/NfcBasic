@@ -111,6 +111,7 @@ public class ValidationActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
+                setMockedData();
                 return null;
             }
         }
@@ -119,11 +120,15 @@ public class ValidationActivity extends AppCompatActivity {
             mProgressBar.setVisibility(View.GONE);
             if (response != null) {
 //                handleResponse(response);
-                mResultMessage.setText(R.string.transaction_validated);
-                mResult.setText("Provenence and ownership of the product are valid and legitimate");
-                mResponseDetails.setText("http://localhost:9984/api/v1/transactions/ da7a66280914be1a8f0496598fc15f763cbd70b 486f12ee815bf1d8815565c2b");
+                setMockedData();
             }
         }
+    }
+
+    private void setMockedData(){
+        mResultMessage.setText(R.string.transaction_validated);
+        mResult.setText("Provenence and ownership of the product are valid and legitimate");
+        mResponseDetails.setText("http://localhost:9984/api/v1/transactions/da7a66280914be1a8f0496598fc15f763cbd70b 486f12ee815bf1d8815565c2b");
     }
 
 //    private void handleResponse(String response) {
