@@ -9,8 +9,7 @@ import com.riddleandcode.nfcbasic.utils.Constants;
 import io.fabric.sdk.android.Fabric;
 
 import org.apache.commons.codec.DecoderException;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,9 +31,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Security;
 
-public class ValidationActivity extends AppCompatActivity {
+public class TagReaderActivity extends AppCompatActivity {
 
-    private static final String TAG = ValidationActivity.class.getSimpleName();
+    private static final String TAG = TagReaderActivity.class.getSimpleName();
 
     private static String API_URL = "http://localhost:9984/api/v1";
     private static String GET_TRANSACTION = "/transactions";
@@ -43,12 +42,16 @@ public class ValidationActivity extends AppCompatActivity {
 //    private static String NETWORK = "/BTCTEST";
 
     private ProgressBar mProgressBar;
-
     private TextView mResultMessage;
     private TextView mResult;
     private TextView mResponseDetails;
 
-    public ValidationActivity() throws DecoderException {
+    private Tag tagFromIntent;
+    private TagManager mTagManager;
+
+    private String processType;
+
+    public TagReaderActivity() throws DecoderException {
     }
 
     @Override
@@ -57,27 +60,80 @@ public class ValidationActivity extends AppCompatActivity {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
         Fabric.with(this, new Crashlytics());
 
-        setContentView(R.layout.activity_validation);
+        processType = getIntent().getStringExtra(Constants.INTENT_PROCESS_TYPE);
+        int layout = processType.equals(Constants.VALIDATION) ? R.layout.activity_validation : R.layout.activity_verification;
+        setContentView(layout);
         bindViews();
-        fetchAccountData();
 
+        try {
+            mTagManager = new TagManager(this);
+        } catch (DecoderException e) {
+            e.printStackTrace();
+        }
     }
 
     private void bindViews() {
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mResultMessage = (TextView) findViewById(R.id.result_message);
-        mResult = (TextView) findViewById(R.id.validation_result);
-        mResponseDetails = (TextView) findViewById(R.id.validation_response_details);
+        mResult = (TextView) findViewById(R.id.result);
+        mResponseDetails = (TextView) findViewById(R.id.response_details);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        disableForegroundDispatchSystem();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        enableForegroundDispatchSystem();
+    }
+
+    private void enableForegroundDispatchSystem() {
+        Intent intent = new Intent(this, TagReaderActivity.class).addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        IntentFilter[] intentFilters = new IntentFilter[] {};
+
+        mTagManager.getAdapter().enableForegroundDispatch(this, pendingIntent, intentFilters, null);
+    }
+
+    private void disableForegroundDispatchSystem() {
+        mTagManager.getAdapter().disableForegroundDispatch(this);
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
+            tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+            try {
+                mTagManager.ntagInit(tagFromIntent);
+                mTagManager.ntagConnect();
+
+                mProgressBar.setVisibility(View.VISIBLE);
+                showResultByProcessType();
+
+                mTagManager.setTimeout(100);
+                mTagManager.ntagClose();
+            } catch (Exception e) {
+                Toast.makeText(this, "Tag reading Error: ", Toast.LENGTH_SHORT).show();
+
+            }
+        }
+    }
+
+    private void showResultByProcessType(){
+        if(processType.equals(Constants.VALIDATION)){
+            fetchAccountData();
+        }else{
+            signMessageAndVerify();
+        }
     }
 
     private void fetchAccountData() {
@@ -87,7 +143,6 @@ public class ValidationActivity extends AppCompatActivity {
     private class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
 
         protected void onPreExecute() {
-            mProgressBar.setVisibility(View.VISIBLE);
         }
 
         protected String doInBackground(Void... urls) {
@@ -111,17 +166,16 @@ public class ValidationActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
-                setMockedData();
                 return null;
             }
         }
 
         protected void onPostExecute(String response) {
             mProgressBar.setVisibility(View.GONE);
-            if (response != null) {
+            setMockedData();
+//            if (response != null) {
 //                handleResponse(response);
-                setMockedData();
-            }
+//            }
         }
     }
 
@@ -160,5 +214,51 @@ public class ValidationActivity extends AppCompatActivity {
 
     private String getBalanceUrl() {
         return API_URL + GET_TRANSACTION;
+    }
+
+    /*
+    * Get the message introduced by the user, hash it and send to the antenna in order to sign it.
+    * Fetch the public key from the antenna to verify the signature received
+    */
+    private void signMessageAndVerify(){
+//        try {
+
+//            byte[] hashString = Util.hashString(mMessage);
+//            mTagManager.signMessage(hashString);
+
+//            Log.d(TAG,Util.bytesToHex(mTagManager.getMessage()));
+//
+//            mTagManager.ntagRead((byte) 0x04);
+//            Log.d(TAG,Util.bytesToHex(mTagManager.ntagGetLastAnswer()));
+
+//            //Wait until the tag is ready for be read
+//            do {
+//                boolean boolVar = true;
+//            } while (!mTagManager.ntagReadable());
+//
+//            mTagManager.parseSignResponse();
+//
+//            mTagManager.getKey();
+//            do {
+//                boolean boolVar = true;
+//            } while (!mTagManager.ntagReadable());
+//
+//            mTagManager.parseGetKeyResponse();
+//
+//            boolean verified = mTagManager.checkSign();
+//            mResultMessage.setText(verified ? R.string.verification_successfully : R.string.verification_fail);
+        mProgressBar.setVisibility(View.GONE);
+
+        mResultMessage.setText(R.string.verification_successfully);
+        mResult.setText("The product is an original produced by the brand A in 2017");
+        mResponseDetails.setText("D09EDDBD3B3C1FC28DDE8CCAAD24844DA3C9D63B978DEEF7D71BAE5395BA1030E7644655023639CC25A4409BC1072AF808CF98B036B373FC65EA7B617993C0BB");
+
+//        } catch (CertificateException e) {
+//            e.printStackTrace();
+//        } catch (CMSException e) {
+//            e.printStackTrace();
+//        } catch (OperatorCreationException e) {
+//            e.printStackTrace();
+//        }
     }
 }

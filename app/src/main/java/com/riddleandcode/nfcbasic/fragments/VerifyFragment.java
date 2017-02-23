@@ -11,8 +11,8 @@ import android.widget.Button;
 
 import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.activities.MainScreenSlidePagerActivity;
-import com.riddleandcode.nfcbasic.activities.ValidationActivity;
-import com.riddleandcode.nfcbasic.activities.VerificationActivity;
+import com.riddleandcode.nfcbasic.activities.TagReaderActivity;
+import com.riddleandcode.nfcbasic.utils.Constants;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,16 +36,16 @@ public class VerifyFragment extends Fragment {
         mVerifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                goToVerifyScreen();
-                ((MainScreenSlidePagerActivity)getActivity()).showProgress();
+                startVerificationProcess();
 
             }
         });
         return rootView;
     }
 
-    private void goToVerifyScreen(){
-        Intent intent = new Intent(getActivity(), VerificationActivity.class);
+    private void startVerificationProcess(){
+        Intent intent = new Intent(getActivity(), TagReaderActivity.class);
+        intent.putExtra(Constants.INTENT_PROCESS_TYPE,Constants.VERIFICATION);
         startActivity(intent);
     }
 }

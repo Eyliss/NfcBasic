@@ -17,7 +17,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -33,10 +32,6 @@ import io.fabric.sdk.android.Fabric;
 
 public class MainScreenSlidePagerActivity extends AppCompatActivity {
 
-    private Tag tagFromIntent;
-    private TagManager mTagManager;
-
-    private ProgressBar mProgressBar;
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
 
@@ -48,82 +43,22 @@ public class MainScreenSlidePagerActivity extends AppCompatActivity {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
         Fabric.with(this, new Crashlytics());
 
-        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
-
-        // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new MainScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabDots);
         tabLayout.setupWithViewPager(mPager, true);
 
-        try {
-            mTagManager = new TagManager(this);
-        } catch (DecoderException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        disableForegroundDispatchSystem();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mProgressBar.setVisibility(View.GONE);
-        enableForegroundDispatchSystem();
-    }
-
-    private void enableForegroundDispatchSystem() {
-        Intent intent = new Intent(this, MainScreenSlidePagerActivity.class).addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        IntentFilter[] intentFilters = new IntentFilter[] {};
-
-        mTagManager.getAdapter().enableForegroundDispatch(this, pendingIntent, intentFilters, null);
-    }
-
-    private void disableForegroundDispatchSystem() {
-        mTagManager.getAdapter().disableForegroundDispatch(this);
-    }
-
-    @Override
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-            tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
-            try {
-                mTagManager.ntagInit(tagFromIntent);
-                mTagManager.ntagConnect();
-
-//                mMessage = mEtMessage.getText().toString();
-//                mMessage = "Hello world";
-                showResults();
-
-                mTagManager.setTimeout(100);
-                mTagManager.ntagClose();
-            } catch (Exception e) {
-                Toast.makeText(this, "Tag reading Error: ", Toast.LENGTH_SHORT).show();
-
-            }
-        }
-    }
-
-    private void showResults(){
-        mProgressBar.setVisibility(View.GONE);
-        Intent intent;
-        if(mPager.getCurrentItem() == 0){
-            intent = new Intent(this,VerificationActivity.class);
-        }else{
-            intent = new Intent(this,ValidationActivity.class);
-        }
-        startActivity(intent);
     }
 
     @Override
@@ -136,10 +71,6 @@ public class MainScreenSlidePagerActivity extends AppCompatActivity {
             // Otherwise, select the previous step.
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
-    }
-
-    public void showProgress(){
-        mProgressBar.setVisibility(View.VISIBLE);
     }
 }
 

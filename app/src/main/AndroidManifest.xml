@@ -39,12 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.VerificationActivity">
-        </activity>
-        <activity android:name=".activities.ValidationActivity">
-        </activity>
-
-        <activity android:name=".activities.MainScreenSlidePagerActivity">
+        <activity android:name=".activities.TagReaderActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 
@@ -54,6 +49,8 @@
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".activities.MainScreenSlidePagerActivity">
         </activity>
         <meta-data
                 android:name="io.fabric.ApiKey"

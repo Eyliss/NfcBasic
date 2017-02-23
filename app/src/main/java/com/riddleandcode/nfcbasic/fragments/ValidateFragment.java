@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.riddleandcode.nfcbasic.R;
-import com.riddleandcode.nfcbasic.activities.MainScreenSlidePagerActivity;
-import com.riddleandcode.nfcbasic.activities.ValidationActivity;
+import com.riddleandcode.nfcbasic.activities.TagReaderActivity;
+import com.riddleandcode.nfcbasic.utils.Constants;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,15 +34,15 @@ public class ValidateFragment extends Fragment {
         mValidateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                goToValidateScreen();
-                ((MainScreenSlidePagerActivity)getActivity()).showProgress();
+                startValidateProcess();
             }
         });
         return rootView;
     }
 
-    private void goToValidateScreen(){
-        Intent intent = new Intent(getActivity(), ValidationActivity.class);
+    private void startValidateProcess(){
+        Intent intent = new Intent(getActivity(), TagReaderActivity.class);
+        intent.putExtra(Constants.INTENT_PROCESS_TYPE,Constants.VALIDATION);
         startActivity(intent);
     }
 }
