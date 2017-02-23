@@ -63,6 +63,7 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
     public void onLoginSuccess() {
         Intent intent = new Intent(this,MainScreenSlidePagerActivity.class);
         startActivity(intent);
+        finish();
     }
 
     @Override
