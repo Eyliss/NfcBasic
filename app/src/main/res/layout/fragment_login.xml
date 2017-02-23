@@ -4,19 +4,19 @@
              android:layout_height="match_parent"
                 android:gravity="center_horizontal"
              tools:context="com.riddleandcode.nfcbasic.fragments.LoginFragment">
-    <TextView
-            android:id="@+id/title"
-            android:text="@string/main_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="32dp"
-            android:textColor="@color/tuna"
-            android:gravity="center"/>
-    <ImageView
-            android:id="@+id/icon_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher" android:layout_below="@+id/title"/>
+    <!--<TextView-->
+            <!--android:id="@+id/title"-->
+            <!--android:text="@string/main_title"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="32dp"-->
+            <!--android:textColor="@color/tuna"-->
+            <!--android:gravity="center"/>-->
+    <!--<ImageView-->
+            <!--android:id="@+id/icon_image"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@mipmap/ic_launcher" android:layout_below="@+id/title"/>-->
     <LinearLayout
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
@@ -64,6 +64,7 @@
                 android:text="@string/login"
                 android:background="@drawable/rounded_button_layout"
                 android:backgroundTint="@color/tuna"
+                android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal"

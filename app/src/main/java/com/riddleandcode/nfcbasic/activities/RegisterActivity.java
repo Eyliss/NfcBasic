@@ -1,14 +1,16 @@
 package com.riddleandcode.nfcbasic.activities;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -19,8 +21,6 @@ import com.riddleandcode.nfcbasic.fragments.LoginFragment;
  * A login screen that offers login via email/password.
  */
 public class RegisterActivity extends AppCompatActivity implements LoginFragment.OnLoginFragmentInteractionListener {
-
-    private static final String LOGIN_FRAGMENT_TAG = "login_fragment";
 
     // UI references.
     private Button mStartButton;
@@ -42,7 +42,8 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
         mStartButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                showLoginFragment();
+                mLoginContainer.setVisibility(View.VISIBLE);
+                mRegisterContainer.setVisibility(View.GONE);
             }
         });
         mSignUpButton.setOnClickListener(new OnClickListener() {
@@ -52,11 +53,6 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
             }
         });
 
-    }
-
-    private void showLoginFragment(){
-        mRegisterContainer.setVisibility(View.GONE);
-        mLoginContainer.setVisibility(View.VISIBLE);
     }
 
     private void goToSignUpScreen(){
@@ -71,11 +67,11 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
 
     @Override
     public void onBackPressed() {
-        if(mRegisterContainer.getVisibility() == View.VISIBLE){
-            finish();
-        }else{
-            mRegisterContainer.setVisibility(View.VISIBLE);
+        if(mLoginContainer.getVisibility() == View.VISIBLE){
             mLoginContainer.setVisibility(View.GONE);
+            mRegisterContainer.setVisibility(View.VISIBLE);
+        }else{
+            finish();
         }
     }
 }

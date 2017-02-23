@@ -6,10 +6,7 @@
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
-              tools:context="com.riddleandcode.nfcbasic.activities.RegisterActivity">
-    <RelativeLayout android:layout_width="match_parent"
-          android:layout_height="match_parent"
-            android:id="@+id/register_container">
+                tools:context="com.riddleandcode.nfcbasic.activities.RegisterActivity">
         <TextView
                 android:id="@+id/title"
                 android:text="@string/main_title"
@@ -23,13 +20,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_launcher" android:layout_below="@+id/title"/>
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/register_container"
+                    android:layout_below="@+id/icon_image">
         <ImageView
                 android:id="@+id/map_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_map"
-                android:layout_above="@+id/email_login_form"
-                android:layout_below="@+id/icon_image"/>
+                android:layout_above="@+id/email_login_form"/>
         <LinearLayout
                 android:id="@+id/email_login_form"
                 android:layout_width="match_parent"
@@ -69,7 +69,8 @@
     </RelativeLayout>
     <fragment
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:name="com.riddleandcode.nfcbasic.fragments.LoginFragment"
+            android:layout_below="@id/icon_image"
             android:id="@+id/login_fragment"/>
 </RelativeLayout>
