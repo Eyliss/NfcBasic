@@ -21,13 +21,6 @@ import com.riddleandcode.nfcbasic.fragments.LoginFragment;
 public class RegisterActivity extends AppCompatActivity implements LoginFragment.OnLoginFragmentInteractionListener {
 
     private static final String LOGIN_FRAGMENT_TAG = "login_fragment";
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-          "marc.madsen@mail.com", "marc.madsen"
-    };
 
     // UI references.
     private Button mStartButton;
@@ -43,7 +36,8 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
         mStartButton = (Button) findViewById(R.id.start_demo_button);
         mSignUpButton = (Button) findViewById(R.id.sign_up_button);
         mRegisterContainer = (RelativeLayout) findViewById(R.id.register_container);
-        mLoginContainer = (RelativeLayout)findViewById(R.id.login_container);
+        mLoginContainer = (RelativeLayout)findViewById(R.id.login_fragment);
+        mLoginContainer.setVisibility(View.GONE);
 
         mStartButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -51,7 +45,6 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
                 showLoginFragment();
             }
         });
-
         mSignUpButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,9 +57,6 @@ public class RegisterActivity extends AppCompatActivity implements LoginFragment
     private void showLoginFragment(){
         mRegisterContainer.setVisibility(View.GONE);
         mLoginContainer.setVisibility(View.VISIBLE);
-        // add fragment to the fragment container layout
-        LoginFragment mRegisterFragment = LoginFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().replace(R.id.login_container, mRegisterFragment, LOGIN_FRAGMENT_TAG).commitAllowingStateLoss();
     }
 
     private void goToSignUpScreen(){

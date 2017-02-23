@@ -67,10 +67,9 @@
                     android:gravity="center"/>
         </LinearLayout>
     </RelativeLayout>
-    <RelativeLayout
-            android:id="@+id/login_container"
+    <fragment
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-    </RelativeLayout>
-
+            android:layout_height="wrap_content"
+            android:name="com.riddleandcode.nfcbasic.fragments.LoginFragment"
+            android:id="@+id/login_fragment"/>
 </RelativeLayout>
