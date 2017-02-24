@@ -97,6 +97,45 @@ public class TagManager {
         return answer;
     }
 
+    // Public tag commands
+    public void signMessage(byte[] originalMessage){
+        message = originalMessage; // For external access
+        sendRequest(RequestCodes.SIGN, originalMessage);
+    }
+
+    // -------------- Private interface -----------------
+    private void sendRequest(RequestCodes opCode, byte[] payload) {
+        try {
+            ntagWritePayload(payload);
+            //Write the header after the request
+            ntagWriteHeader(opCode, payload.length);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // --- Some constants for communication
+    private final byte HEADER_ADDRESS = 0;
+    private final byte PAYLOAD_ADDRESS = 4;
+
+    private void ntagWriteHeader(RequestCodes opCode, int msgSize) throws IOException, FormatException {
+        ntagWrite32(opCode.getCode(), HEADER_ADDRESS);
+        ntagWrite32(msgSize, (byte)(HEADER_ADDRESS + 1));
+        ntagWrite32(0, (byte)(HEADER_ADDRESS + 2));
+        ntagWrite32(1, (byte)(HEADER_ADDRESS + 1)); // Tell I2c the message is ready
+    }
+
+    private void ntagWritePayload(byte[] payload) throws IOException, FormatException {
+        ntagSectorSelect((byte) 0x01);
+        for(int i = 0; i < payload.length/4; i++) {
+            byte[] slice = new byte[4];
+            for(int j = 0; j < 4; ++j) {
+                slice[j] = payload[4*i+j];
+            }
+            ntagWrite(slice, (byte)(PAYLOAD_ADDRESS+i));
+        }
+    }
+
     //special read command
     private int ntagGetNsReg(int regAddr, int pos) throws IOException, FormatException {
         ntagSectorSelect((byte) 0x03);
@@ -215,27 +254,6 @@ public class TagManager {
 //        }
 //    }
 
-    // --- Some constants for communication
-    private final byte HEADER_ADDRESS = 0;
-    private final byte PAYLOAD_ADDRESS = 4;
-
-    private void ntagWriteHeader(RequestCodes opCode, int msgSize) throws IOException, FormatException {
-        ntagWrite32(opCode.getCode(), HEADER_ADDRESS);
-        ntagWrite32(msgSize, (byte)(HEADER_ADDRESS + 1));
-        ntagWrite32(0, (byte)(HEADER_ADDRESS + 2));
-        ntagWrite32(1, (byte)(HEADER_ADDRESS + 1)); // Tell I2c the message is ready
-    }
-
-    private void ntagWritePayload(byte[] payload) throws IOException, FormatException {
-        for(int i = 0; i < payload.length/4; i++) {
-            byte[] slice = new byte[4];
-            for(int j = 0; j < 4; ++j) {
-                slice[j] = payload[4*i+j];
-            }
-            ntagWrite(slice, (byte)(PAYLOAD_ADDRESS+i));
-        }
-    }
-
     /*
      * Get public key from tag
      */
@@ -249,27 +267,6 @@ public class TagManager {
             //Write the header after the request
             byte[] header = {RequestCodes.GET_KEY.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
             ntagWrite(header, (byte) 0x00);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void signMessage(byte[] originalMessage){
-        try {
-            //message = originalMessage;
-            //byte[] signData = {RequestCodes.SIGN.getCode(), (byte) message.length};
-            //signData = Util.concatArray(signData,message);
-
-            ntagSectorSelect((byte) 0x01);
-            //ntagWrite(signData, (byte) 0x01);
-            ntagWritePayload(originalMessage);
-
-            //Write the header after the request
-            ntagWriteHeader(RequestCodes.SIGN, originalMessage.length);
-            //byte[] header = {RequestCodes.SIGN.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
-            //ntagWrite(header, (byte) 0x00);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
