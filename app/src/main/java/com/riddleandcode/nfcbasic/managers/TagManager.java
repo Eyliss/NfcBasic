@@ -61,14 +61,6 @@ public class TagManager {
 
     /** Functions related with the tag interaction **/
 
-    //special read command
-    public int ntagGetNsReg(int regAddr, int pos) throws IOException, FormatException {
-        ntagSectorSelect((byte) 0x03);
-        answer = ntagRead((byte) 0xF8);
-
-        return (int) (answer[regAddr] >> pos) & 1;
-    }
-
     public void ntagInit(Tag tag) {
         nfca = NfcA.get(tag);
         sectorSelectTimeout = 20;
@@ -90,6 +82,13 @@ public class TagManager {
         return nfca.isConnected();
     }
 
+    public byte[] ntagGetVersion() throws IOException {
+        command = new byte[1];
+        command[0] = 96;
+        answer = nfca.transceive(command);
+        return answer;
+    }
+
     public byte[] ntagGetLastCommand() {
         return command;
     }
@@ -98,7 +97,15 @@ public class TagManager {
         return answer;
     }
 
-    public void ntagSectorSelect(byte sector) throws IOException, FormatException {
+    //special read command
+    private int ntagGetNsReg(int regAddr, int pos) throws IOException, FormatException {
+        ntagSectorSelect((byte) 0x03);
+        answer = ntagRead((byte) 0xF8);
+
+        return (int) (answer[regAddr] >> pos) & 1;
+    }
+
+    private void ntagSectorSelect(byte sector) throws IOException, FormatException {
         if(current_sec != sector) {
             command = new byte[2];
             command[0] = -62;
@@ -122,7 +129,7 @@ public class TagManager {
         }
     }
 
-    public void ntagFastWrite(byte[] data, byte startAddr, byte endAddr) throws IOException, FormatException {
+    private void ntagFastWrite(byte[] data, byte startAddr, byte endAddr) throws IOException, FormatException {
         answer = new byte[0];
         command = new byte[3 + data.length];
         command[0] = -90;
@@ -134,7 +141,7 @@ public class TagManager {
         nfca.setTimeout(20);
     }
 
-    public byte[] ntagWrite32(int data, byte blockNr) throws IOException, FormatException {
+    private byte[] ntagWrite32(int data, byte blockNr) throws IOException, FormatException {
         answer = new byte[0];
         command = new byte[6];
         command[0] = -94;
@@ -146,7 +153,7 @@ public class TagManager {
         return nfca.transceive(command);
     }
 
-    public byte[] ntagWrite(byte[] data, byte blockNr) throws IOException, FormatException {
+    private byte[] ntagWrite(byte[] data, byte blockNr) throws IOException, FormatException {
         answer = new byte[0];
         command = new byte[6];
         command[0] = -94;
@@ -158,7 +165,7 @@ public class TagManager {
         return nfca.transceive(command);
     }
 
-    public byte[] ntagFastRead(byte startAddr, byte endAddr) throws IOException, FormatException {
+    private byte[] ntagFastRead(byte startAddr, byte endAddr) throws IOException, FormatException {
         command = new byte[3];
         command[0] = 58;
         command[1] = startAddr;
@@ -169,17 +176,10 @@ public class TagManager {
         return answer;
     }
 
-    public byte[] ntagRead(byte blockNr) throws IOException, FormatException {
+    private byte[] ntagRead(byte blockNr) throws IOException, FormatException {
         command = new byte[2];
         command[0] = 48;
         command[1] = blockNr;
-        answer = nfca.transceive(command);
-        return answer;
-    }
-
-    public byte[] ntagGetVersion() throws IOException {
-        command = new byte[1];
-        command[0] = 96;
         answer = nfca.transceive(command);
         return answer;
     }
@@ -219,14 +219,14 @@ public class TagManager {
     private final byte HEADER_ADDRESS = 0;
     private final byte PAYLOAD_ADDRESS = 4;
 
-    public void ntagWriteHeader(RequestCodes opCode, int msgSize) throws IOException, FormatException {
+    private void ntagWriteHeader(RequestCodes opCode, int msgSize) throws IOException, FormatException {
         ntagWrite32(opCode.getCode(), HEADER_ADDRESS);
         ntagWrite32(msgSize, (byte)(HEADER_ADDRESS + 1));
         ntagWrite32(0, (byte)(HEADER_ADDRESS + 2));
         ntagWrite32(1, (byte)(HEADER_ADDRESS + 1)); // Tell I2c the message is ready
     }
 
-    public void ntagWritePayload(byte[] payload) throws IOException, FormatException {
+    private void ntagWritePayload(byte[] payload) throws IOException, FormatException {
         for(int i = 0; i < payload.length/4; i++) {
             byte[] slice = new byte[4];
             for(int j = 0; j < 4; ++j) {
