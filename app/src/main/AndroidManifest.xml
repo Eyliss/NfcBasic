@@ -17,19 +17,20 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-
             </intent-filter>
-            <intent-filter>
+
+            <!--intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="text/plain" />
-            </intent-filter>
+            </intent-filter-->
 
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
             </intent-filter>
 
-
+            <meta-data android:name="android.nfc.action.TECH_DISCOVERED"
+                android:value="@xml/nfc_tech_list"/>
 
         </activity>
         <meta-data
@@ -37,12 +38,11 @@
             android:value="d1b8bb24902f0824b0e51e8c8a522bc3b7dc12c9" />
     </application>
 
-    <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!--resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
         <tech-list>
             <tech>android.nfc.tech.NfcA</tech>
             <tech>android.nfc.tech.Ndef</tech>
         </tech-list>
-    </resources>
-
+    </resources-->>
 
 </manifest>
