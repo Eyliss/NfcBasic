@@ -159,7 +159,8 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             byte[] hashString = Util.hashString(mMessage);
-            mTagManager.signMessage(hashString);
+            if(!mTagManager.signMessage(hashString))
+                return;
 
             Log.d(TAG,Util.bytesToHex(mTagManager.getMessage()));
 
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected String doInBackground(Void... urls) {
-            String address = Util.bytesToHex(mTagManager.getPublicKey());
+            /*String address = Util.bytesToHex(mTagManager.getPublicKey());
             try {
                 //Hacked address until the device read a correct one from the antenna
                 URL url = getUrlWithParams(address);
@@ -235,7 +236,8 @@ public class MainActivity extends AppCompatActivity {
             catch(Exception e) {
                 Log.e(TAG, e.getMessage(), e);
                 return null;
-            }
+            }*/
+            return null;
         }
 
         protected void onPostExecute(String response) {

@@ -98,20 +98,60 @@ public class TagManager {
     }
 
     // Public tag commands
-    public void signMessage(byte[] originalMessage){
+    public boolean signMessage(byte[] originalMessage){
         message = originalMessage; // For external access
-        sendRequest(RequestCodes.SIGN, originalMessage);
+        return sendRequest(RequestCodes.SIGN, originalMessage);
     }
 
     // -------------- Private interface -----------------
-    private void sendRequest(RequestCodes opCode, byte[] payload) {
+    private boolean sendRequest(RequestCodes opCode, byte[] payload) {
+        // Wait until NFC interface owns memory control
         try {
+            waitForTagOwnership();
             ntagWritePayload(payload);
             //Write the header after the request
             ntagWriteHeader(opCode, payload.length);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
+    }
+
+    private enum CommDir {
+        Nfc_to_i2c(0),
+        I2c_to_nfc(1);
+
+        private CommDir(int c) { byteCode = c; }
+        public static CommDir fromByteArray(byte[] array) {
+            if(cachedValues == null) {
+                cachedValues = CommDir.values();
+            }
+            return cachedValues[array[3]];
+        }
+        private int byteCode;
+        private static CommDir[] cachedValues = null;
+    }
+
+    private class ResponseHeader {
+        public CommDir commDir;
+    }
+
+    private void waitForTagOwnership() throws IOException, FormatException {
+        while(true) {
+            ResponseHeader hdr = readResponseHeader();
+            if(hdr.commDir == CommDir.Nfc_to_i2c)
+                return;
+        }
+    }
+
+    private ResponseHeader readResponseHeader() throws  IOException, FormatException {
+        ResponseHeader result = new ResponseHeader();
+
+        ntagSectorSelect((byte)1);
+        byte[] rawCommDir = ntagRead((byte) 3);
+        result.commDir = CommDir.fromByteArray(rawCommDir);
+        return result;
     }
 
     // --- Some constants for communication
