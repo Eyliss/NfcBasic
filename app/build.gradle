@@ -52,5 +52,7 @@ dependencies {
     compile 'commons-codec:commons-codec:1.10'
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
+
     testCompile 'junit:junit:4.12'
 }
