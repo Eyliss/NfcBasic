@@ -104,12 +104,32 @@ public class TagManager {
     }
 
     // -------------- Private interface -----------------
+
+    // --- Some constants for communication
+    private final byte SRAM_MEMA = (byte)0xf0;
+    private final byte SRAM_SIZE = 64;
+    private final byte HEADER_SIZE = 2;
+    private final byte HEADER_ADDRESS = SRAM_SIZE - HEADER_SIZE;
+
     private boolean sendRequest(RequestCodes opCode, byte[] payload) {
-        // Wait until NFC interface owns memory control
+        // Validate data fits in memory
+        assert (payload.length + HEADER_SIZE <= SRAM_SIZE);
+        byte[] requestBuffer = new byte[SRAM_SIZE];
+        // Copy payload to buffer
+        byte payloadAddress = (byte)(HEADER_ADDRESS - (byte)payload.length);
+        for(int i = 0; i < payload.length; i++) {
+            requestBuffer[payloadAddress+i] = payload[i];
+        }
+        // Copy header data at the end
+        requestBuffer[HEADER_ADDRESS] = opCode.getCode();
+        requestBuffer[HEADER_ADDRESS+1] = (byte)payload.length;
+
         try {
-            ntagWritePayload(payload);
-            //Write the header after the request
-            ntagWriteHeader(opCode, payload.length);
+            // Wait until NFC interface owns memory bus
+            waitForTagOwnership();
+            // Send request command
+            ntagSectorSelect((byte)0);
+            ntagFastWrite(requestBuffer, SRAM_MEMA);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,30 +139,9 @@ public class TagManager {
 
     private void waitForTagOwnership() throws IOException, FormatException {
         while(true) {
-            if(transferDir() == NFC_TO_I2C)
+            // Assuming pass through communication
+            if(passThroughEnabled() && transferDir() == NFC_TO_I2C)
                 return;
-        }
-    }
-
-    // --- Some constants for communication
-    private final byte HEADER_ADDRESS = 0;
-    private final byte PAYLOAD_ADDRESS = 4;
-
-    private void ntagWriteHeader(RequestCodes opCode, int msgSize) throws IOException, FormatException {
-        ntagWrite32(opCode.getCode(), HEADER_ADDRESS);
-        ntagWrite32(msgSize, (byte)(HEADER_ADDRESS + 1));
-        ntagWrite32(0, (byte)(HEADER_ADDRESS + 2));
-        ntagWrite32(1, (byte)(HEADER_ADDRESS + 1)); // Tell I2c the message is ready
-    }
-
-    private void ntagWritePayload(byte[] payload) throws IOException, FormatException {
-        ntagSectorSelect((byte) 0x01);
-        for(int i = 0; i < payload.length/4; i++) {
-            byte[] slice = new byte[4];
-            for(int j = 0; j < 4; ++j) {
-                slice[j] = payload[4*i+j];
-            }
-            ntagWrite(slice, (byte)(PAYLOAD_ADDRESS+i));
         }
     }
 
@@ -163,6 +162,10 @@ public class TagManager {
 
     private boolean transferDir() throws IOException, FormatException {
         return ntagGetNsReg(NC_REG, TRANSFER_DIR);
+    }
+
+    private boolean passThroughEnabled() throws IOException, FormatException {
+        return ntagGetNsReg(NC_REG, PTHRU_ON_OFF);
     }
 
     //special read command
@@ -197,12 +200,12 @@ public class TagManager {
         }
     }
 
-    private void ntagFastWrite(byte[] data, byte startAddr, byte endAddr) throws IOException, FormatException {
+    private void ntagFastWrite(byte[] data, byte startAddr) throws IOException, FormatException {
         answer = new byte[0];
         command = new byte[3 + data.length];
         command[0] = -90;
         command[1] = startAddr;
-        command[2] = endAddr;
+        command[2] = (byte)(startAddr + data.length - 1);
         System.arraycopy(data, 0, command, 3, data.length);
         nfca.setTimeout(500);
         nfca.transceive(command);
