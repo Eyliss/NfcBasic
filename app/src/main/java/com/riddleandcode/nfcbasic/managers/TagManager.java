@@ -107,7 +107,6 @@ public class TagManager {
     private boolean sendRequest(RequestCodes opCode, byte[] payload) {
         // Wait until NFC interface owns memory control
         try {
-            waitForTagOwnership();
             ntagWritePayload(payload);
             //Write the header after the request
             ntagWriteHeader(opCode, payload.length);
@@ -118,40 +117,11 @@ public class TagManager {
         }
     }
 
-    private enum CommDir {
-        Nfc_to_i2c(0),
-        I2c_to_nfc(1);
-
-        private CommDir(int c) { byteCode = c; }
-        public static CommDir fromByteArray(byte[] array) {
-            if(cachedValues == null) {
-                cachedValues = CommDir.values();
-            }
-            return cachedValues[array[3]];
-        }
-        private int byteCode;
-        private static CommDir[] cachedValues = null;
-    }
-
-    private class ResponseHeader {
-        public CommDir commDir;
-    }
-
     private void waitForTagOwnership() throws IOException, FormatException {
         while(true) {
-            ResponseHeader hdr = readResponseHeader();
-            if(hdr.commDir == CommDir.Nfc_to_i2c)
+            if(transferDir() == NFC_TO_I2C)
                 return;
         }
-    }
-
-    private ResponseHeader readResponseHeader() throws  IOException, FormatException {
-        ResponseHeader result = new ResponseHeader();
-
-        ntagSectorSelect((byte)1);
-        byte[] rawCommDir = ntagRead((byte) 3);
-        result.commDir = CommDir.fromByteArray(rawCommDir);
-        return result;
     }
 
     // --- Some constants for communication
@@ -176,12 +146,31 @@ public class TagManager {
         }
     }
 
+    private static final int NC_REG = 0;
+    private static final int NS_REG = 6;
+
+    // NC_REG
+    private static final byte PTHRU_ON_OFF = 6;
+    private static final byte TRANSFER_DIR = 0;
+    private static final boolean NFC_TO_I2C = true;
+    private static final boolean I2C_TO_NFC = false;
+
+    // NS_REG
+    private static final byte I2C_LOCKED = 6;
+    private static final byte RF_LOCKED = 5;
+    private static final byte SRAM_I2C_READY = 4;
+    private static final byte SRAM_NFC_READY = 3;
+
+    private boolean transferDir() throws IOException, FormatException {
+        return ntagGetNsReg(NC_REG, TRANSFER_DIR);
+    }
+
     //special read command
-    private int ntagGetNsReg(int regAddr, int pos) throws IOException, FormatException {
+    private boolean ntagGetNsReg(int regAddr, int pos) throws IOException, FormatException {
         ntagSectorSelect((byte) 0x03);
         answer = ntagRead((byte) 0xF8);
 
-        return (int) (answer[regAddr] >> pos) & 1;
+        return ((answer[regAddr] >> pos) & 1) != 0;
     }
 
     private void ntagSectorSelect(byte sector) throws IOException, FormatException {
