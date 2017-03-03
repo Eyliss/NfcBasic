@@ -129,7 +129,7 @@ public class TagManager {
             waitForTagOwnership();
             // Send request command
             ntagSectorSelect((byte)0);
-            ntagFastWrite(requestBuffer, SRAM_MEMA);
+            ntagFastWrite(requestBuffer);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,12 +200,13 @@ public class TagManager {
         }
     }
 
-    private void ntagFastWrite(byte[] data, byte startAddr) throws IOException, FormatException {
+    private void ntagFastWrite(byte[] data) throws IOException, FormatException {
+        assert(data.length == SRAM_SIZE);
         answer = new byte[0];
         command = new byte[3 + data.length];
         command[0] = -90;
-        command[1] = startAddr;
-        command[2] = (byte)(startAddr + data.length - 1);
+        command[1] = (byte)0xf0;
+        command[2] = (byte)0xff;
         System.arraycopy(data, 0, command, 3, data.length);
         nfca.setTimeout(500);
         nfca.transceive(command);
