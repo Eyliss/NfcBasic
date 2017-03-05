@@ -14,6 +14,7 @@ import android.content.Context;
 import android.nfc.FormatException;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.nfc.TagLostException;
 import android.nfc.tech.NfcA;
 
 import java.io.IOException;
@@ -89,6 +90,11 @@ public class TagManager {
         return answer;
     }
 
+    //Read the header block to check if the application is able to read from NFC
+    public boolean ntagReadable() throws IOException, FormatException {
+        return (passThroughEnabled() && transferDir() == I2C_TO_NFC);
+    }
+
     public byte[] ntagGetLastCommand() {
         return command;
     }
@@ -131,7 +137,13 @@ public class TagManager {
             ntagSectorSelect((byte)0);
             ntagFastWrite(requestBuffer);
             return true;
-        } catch (Exception e) {
+        }
+        catch (TagLostException tl) {
+            android.util.Log.d("Transponder: ", tl.getMessage());
+            android.util.Log.d("Transponder: ", tl.getCause().toString());
+            return false;
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -237,11 +249,11 @@ public class TagManager {
         return nfca.transceive(command);
     }
 
-    private byte[] ntagFastRead(byte startAddr, byte endAddr) throws IOException, FormatException {
+    private byte[] ntagFastRead() throws IOException, FormatException {
         command = new byte[3];
         command[0] = 58;
-        command[1] = startAddr;
-        command[2] = endAddr;
+        command[1] = (byte)0xf0;
+        command[2] = (byte)0xff;
         nfca.setTimeout(500);
         answer = nfca.transceive(command);
         nfca.setTimeout(20);
@@ -258,18 +270,6 @@ public class TagManager {
 
     public void setTimeout(int timeout){
         nfca.setTimeout(timeout);
-    }
-
-    //Read the header block to check if the application is able to read from NFC
-    public boolean ntagReadable() throws IOException, FormatException {
-        ntagSectorSelect((byte) 0x01);
-        answer = ntagRead((byte) 0x00);
-
-        if(answer.length > 0 && !hasError()){
-            return Util.bytesToHex(answer).charAt(answer.length - 1) == 0;
-        }else{
-            return false;
-        }
     }
 
 //    /*
@@ -309,12 +309,14 @@ public class TagManager {
 
     public void parseSignResponse(){
         try {
-            ntagSectorSelect((byte) 0x01);
+            ntagSectorSelect((byte)0);
+            byte[] resp = ntagFastRead();
+            /*ntagSectorSelect((byte) 0x01);
             byte[] sign = new byte[0];
             for(int i = 1; i < 5 ; i++){
                 sign = Util.concatArray(sign,ntagRead((byte) i));
-            }
-            signature = sign;
+            }*/
+            signature = resp;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (FormatException e) {
