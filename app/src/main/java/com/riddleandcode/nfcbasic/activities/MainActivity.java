@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 mTagManager.ntagWrite(data3, (byte) 0x07);
 
                 mTagManager.ntagWrite(dataNull, (byte) 0x04);
-                
+
 
  /*              Hand command back to MCU over I2C
 
