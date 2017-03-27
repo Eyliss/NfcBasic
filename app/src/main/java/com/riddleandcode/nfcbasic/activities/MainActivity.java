@@ -126,22 +126,72 @@ public class MainActivity extends AppCompatActivity {
 
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        //do something with tagFromIntent
         if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-            tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
+            Toast.makeText(this, "NFC Intent", Toast.LENGTH_SHORT).show();
+            //NfcA nfca;
             try {
                 mTagManager.ntagInit(tagFromIntent);
                 mTagManager.ntagConnect();
+                mTagManager.ntagGetVersion();
+                Toast.makeText(this, "Tag response: "+ Util.bytesToHex(mTagManager.ntagGetLastAnswer()), Toast.LENGTH_SHORT).show();
+                // ntagRead((byte) 0xE0);
+                // ntagSectorSelect((byte) 0x03);
+                // ntagRead((byte) 0xF8);
 
-                mMessage = mEtMessage.getText().toString();
-                if(mMessage.isEmpty()){
-                    Toast.makeText(this,R.string.empty_message_found,Toast.LENGTH_SHORT).show();
-                }else{
-                    signMessageAndVerify();
-                    fetchAccountData();
-                }
+                // Wait for hand over from I2C
+                boolean boolVar;
+                do {
+                    boolVar = true;
+                    mTagManager.setNfcATimeout(20);
+                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
 
-                mTagManager.setTimeout(100);
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x04);
+                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
+                byte[] page_1 = mTagManager.ntagGetLastAnswer();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x08);
+                byte[] page_2 = mTagManager.ntagGetLastAnswer();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x0C);
+                byte[] page_3 = mTagManager.ntagGetLastAnswer();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x10);
+                byte[] page_4 = mTagManager.ntagGetLastAnswer();
+
+                mTvReadTag.setText(Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4));
+
+                // Write data back to NFC
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+
+                byte[] dataNull = {(byte) 0x01, (byte) 0x01 ,(byte) 0x01 ,(byte) 0x01};
+                byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
+                byte[] data2 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
+                byte[] data3 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
+
+                mTagManager.ntagWrite(data1, (byte) 0x05);
+                mTagManager.ntagWrite(data2, (byte) 0x06);
+                mTagManager.ntagWrite(data3, (byte) 0x07);
+
+                mTagManager.ntagWrite(dataNull, (byte) 0x04);
+                
+
+ /*              Hand command back to MCU over I2C
+
+                byte[] dataCtrlFree = {(byte) 0x00, (byte) 0x00 ,(byte) 0x00 ,(byte) 0x00};
+                ntagWrite( dataCtrlFree, (byte) 0x04);
+                //TimeUnit.MILLISECONDS.sleep(1);
+
+
+*/
+
+                mTagManager.setNfcATimeout(100);
                 mTagManager.ntagClose();
             } catch (Exception e) {
                 Toast.makeText(this, "Tag reading Error: ", Toast.LENGTH_SHORT).show();
@@ -159,23 +209,6 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             byte[] hashString = Util.hashString(mMessage);
-            mTagManager.signMessage(hashString);
-
-            Log.d(TAG,Util.bytesToHex(mTagManager.getMessage()));
-
-            //Wait until the tag is ready for be read
-            do {
-                boolean boolVar = true;
-            } while (!mTagManager.ntagReadable());
-
-            mTagManager.parseSignResponse();
-
-            mTagManager.getKey();
-            do {
-                boolean boolVar = true;
-            } while (!mTagManager.ntagReadable());
-
-            mTagManager.parseGetKeyResponse();
 
             boolean verified = mTagManager.checkSign(hashString);
             int message = verified ? R.string.verification_success : R.string.verification_fail;
@@ -192,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (CMSException e) {
             e.printStackTrace();
         } catch (OperatorCreationException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
             e.printStackTrace();
         }
     }

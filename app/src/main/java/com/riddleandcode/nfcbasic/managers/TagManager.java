@@ -1,12 +1,8 @@
 package com.riddleandcode.nfcbasic.managers;
 
-import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.utils.Crypto;
-import com.riddleandcode.nfcbasic.utils.RequestCodes;
-import com.riddleandcode.nfcbasic.utils.Util;
 
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.spongycastle.cms.CMSException;
 import org.spongycastle.operator.OperatorCreationException;
 
@@ -18,8 +14,6 @@ import android.nfc.tech.NfcA;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.nio.ByteBuffer;
 
 /**
  * Created by Eyliss on 1/27/17.
@@ -40,12 +34,9 @@ public class TagManager {
     private NfcA nfca;
 
     private byte current_sec = 0;
-    private int sectorSelectTimeout = 0;
+    int sectorSelectTimeout = 0;
     private byte[] answer;
     private byte[] command;
-    private int payloadSize = 0;
-    private int opCode = 0;
-    private int errorCode = 0;
 
     public TagManager(Context context) throws DecoderException {
         nfcAdapter = NfcAdapter.getDefaultAdapter(context);
@@ -60,14 +51,6 @@ public class TagManager {
     }
 
     /** Functions related with the tag interaction **/
-
-    //special read command
-    public int ntagGetNsReg(int regAddr, int pos) throws IOException, FormatException {
-        ntagSectorSelect((byte) 0x03);
-        answer = ntagRead((byte) 0xF8);
-
-        return (int) (answer[regAddr] >> pos) & 1;
-    }
 
     public void ntagInit(Tag tag) {
         nfca = NfcA.get(tag);
@@ -134,19 +117,7 @@ public class TagManager {
         nfca.setTimeout(20);
     }
 
-    public byte[] ntagWrite32(int data, byte blockNr) throws IOException, FormatException {
-        answer = new byte[0];
-        command = new byte[6];
-        command[0] = -94;
-        command[1] = blockNr;
-        command[2] = (byte)(data>>24);
-        command[3] = (byte)(data>>16);
-        command[4] = (byte)(data>>8);
-        command[5] = (byte)data;
-        return nfca.transceive(command);
-    }
-
-    public byte[] ntagWrite(byte[] data, byte blockNr) throws IOException, FormatException {
+    public void ntagWrite(byte[] data, byte blockNr) throws IOException, FormatException {
         answer = new byte[0];
         command = new byte[6];
         command[0] = -94;
@@ -155,7 +126,7 @@ public class TagManager {
         command[3] = data[1];
         command[4] = data[2];
         command[5] = data[3];
-        return nfca.transceive(command);
+        nfca.transceive(command);
     }
 
     public byte[] ntagFastRead(byte startAddr, byte endAddr) throws IOException, FormatException {
@@ -184,128 +155,17 @@ public class TagManager {
         return answer;
     }
 
-    public void setTimeout(int timeout){
-        nfca.setTimeout(timeout);
+    public int ntagReadBit(byte blockNr, int byteNr, int bitNr) throws IOException, FormatException {
+        command = new byte[2];
+        command[0] = 48;
+        command[1] = blockNr;
+        answer = nfca.transceive(command);
+        nfca.setTimeout(20);
+        return ((answer[byteNr] >> bitNr) & 0x01);
     }
 
-    //Read the header block to check if the application is able to read from NFC
-    public boolean ntagReadable() throws IOException, FormatException {
-        ntagSectorSelect((byte) 0x01);
-        answer = ntagRead((byte) 0x00);
-
-        if(answer.length > 0 && !hasError()){
-            return Util.bytesToHex(answer).charAt(answer.length - 1) == 0;
-        }else{
-            return false;
-        }
-    }
-
-//    /*
-//     * Sent the message to the tag for hashing
-//     */
-//    public void hashMessage(byte[] originalMessage){
-//        try {
-//            ntagSectorSelect((byte) 0x01);
-//            byte[] hashData = {RequestCodes.HASH.getCode(), (byte) originalMessage.length};
-//
-//            hashData = Util.concatArray(hashData,originalMessage);
-//            ntagWrite(hashData, (byte) 0x01);
-//        } catch (IOException | FormatException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    // --- Some constants for communication
-    private final byte HEADER_ADDRESS = 0;
-    private final byte PAYLOAD_ADDRESS = 4;
-
-    public void ntagWriteHeader(RequestCodes opCode, int msgSize) throws IOException, FormatException {
-        ntagWrite32(opCode.getCode(), HEADER_ADDRESS);
-        ntagWrite32(msgSize, (byte)(HEADER_ADDRESS + 1));
-        ntagWrite32(0, (byte)(HEADER_ADDRESS + 2));
-        ntagWrite32(1, (byte)(HEADER_ADDRESS + 1)); // Tell I2c the message is ready
-    }
-
-    public void ntagWritePayload(byte[] payload) throws IOException, FormatException {
-        for(int i = 0; i < payload.length/4; i++) {
-            byte[] slice = new byte[4];
-            for(int j = 0; j < 4; ++j) {
-                slice[j] = payload[4*i+j];
-            }
-            ntagWrite(slice, (byte)(PAYLOAD_ADDRESS+i));
-        }
-    }
-
-    /*
-     * Get public key from tag
-     */
-    public void getKey(){
-        try {
-            byte[] getKeyData = {RequestCodes.GET_KEY.getCode(), (byte) 0x00 ,(byte) 0x00 ,(byte) 0x00};
-
-            ntagSectorSelect((byte) 0x01);
-            ntagWrite(getKeyData, (byte) 0x01);
-
-            //Write the header after the request
-            byte[] header = {RequestCodes.GET_KEY.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
-            ntagWrite(header, (byte) 0x00);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void signMessage(byte[] originalMessage){
-        try {
-            //message = originalMessage;
-            //byte[] signData = {RequestCodes.SIGN.getCode(), (byte) message.length};
-            //signData = Util.concatArray(signData,message);
-
-            ntagSectorSelect((byte) 0x01);
-            //ntagWrite(signData, (byte) 0x01);
-            ntagWritePayload(originalMessage);
-
-            //Write the header after the request
-            ntagWriteHeader(RequestCodes.SIGN, originalMessage.length);
-            //byte[] header = {RequestCodes.SIGN.getCode(), (byte) message.length, (byte)0x00, (byte) 0x01};
-            //ntagWrite(header, (byte) 0x00);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void parseSignResponse(){
-        try {
-            ntagSectorSelect((byte) 0x01);
-            byte[] sign = new byte[0];
-            for(int i = 1; i < 5 ; i++){
-                sign = Util.concatArray(sign,ntagRead((byte) i));
-            }
-            signature = sign;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void parseGetKeyResponse(){
-        try {
-            ntagSectorSelect((byte) 0x01);
-
-            byte[] key = new byte[0];
-            for(int i = 1; i < 3 ; i++){
-                key = Util.concatArray(key,ntagRead((byte) i));
-            }
-            publicKey = key;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
-            e.printStackTrace();
-        }
+    public void setNfcATimeout(int timeOut){
+        nfca.setTimeout(timeOut);
     }
 
     /**
@@ -330,21 +190,4 @@ public class TagManager {
         return signature;
     }
 
-    public int getErrorMessage(){
-        switch (errorCode){
-            case 1:
-                return R.string.error_invalid_payload_size;
-            case 2:
-                return R.string.error_not_supported_operation;
-            case 3:
-                return R.string.error_operation_fail;
-            default:
-                return R.string.error_ocurred;
-        }
-    }
-
-    private boolean hasError(){
-        errorCode = Util.fromByteArray(Arrays.copyOfRange(answer,0,4));
-        return errorCode != 0;
-    }
 }
