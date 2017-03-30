@@ -63,6 +63,16 @@ public class Util {
         return message;
     }
 
+    public static byte[] convertIntToByteArray(int[] data){
+        byte[] rowbyte = new byte[data.length];
+
+        for (int i = 0; i <data.length ; i++) {
+            rowbyte[i] = (byte) data[i];
+        }
+
+        return rowbyte;
+    }
+
     /*
      * packing an array of 4 bytes to an int, big endian
      */

@@ -5,10 +5,15 @@ import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.managers.TagManager;
 import com.riddleandcode.nfcbasic.models.Balance;
 import com.riddleandcode.nfcbasic.utils.Constants;
+import com.riddleandcode.nfcbasic.utils.Util;
 
 import io.fabric.sdk.android.Fabric;
 
 import org.apache.commons.codec.DecoderException;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.spongycastle.cms.CMSException;
+import org.spongycastle.operator.OperatorCreationException;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -20,6 +25,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,26 +37,26 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Security;
+import java.security.cert.CertificateException;
 
 public class TagReaderActivity extends AppCompatActivity {
 
     private static final String TAG = TagReaderActivity.class.getSimpleName();
 
-    private static String API_URL = "http://localhost:9984/api/v1";
-    private static String GET_TRANSACTION = "/transactions";
-//    private static String API_URL = "https://chain.so/api/v2";
-//    private static String GET_BALANCE_URL = "/get_address_balance";
-//    private static String NETWORK = "/BTCTEST";
+    private static String API_URL = "https://chain.so/api/v2";
+    private static String GET_BALANCE_URL = "/get_address_balance";
+    private static String NETWORK = "/BTCTEST";
+
+    private TextView mTvReadTag;
+    private LinearLayout mInfoLayout;
+    private TextView mNetwork;
+    private TextView mConfirmedBalance;
+    private TextView mUnconfirmedBalance;
+    private EditText mEtMessage;
 
     private ProgressBar mProgressBar;
-    private TextView mResultMessage;
-    private TextView mResult;
-    private TextView mResponseDetails;
-
     private Tag tagFromIntent;
     private TagManager mTagManager;
-
-    private String processType;
 
     public TagReaderActivity() throws DecoderException {
     }
@@ -60,23 +67,19 @@ public class TagReaderActivity extends AppCompatActivity {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
         Fabric.with(this, new Crashlytics());
 
-        processType = getIntent().getStringExtra(Constants.INTENT_PROCESS_TYPE);
-        int layout = processType.equals(Constants.VALIDATION) ? R.layout.activity_validation : R.layout.activity_verification;
-        setContentView(layout);
-        bindViews();
+        setContentView(R.layout.activity_validation);
 
         try {
             mTagManager = new TagManager(this);
         } catch (DecoderException e) {
             e.printStackTrace();
         }
-    }
 
-    private void bindViews() {
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mResultMessage = (TextView) findViewById(R.id.result_message);
-        mResult = (TextView) findViewById(R.id.result);
-        mResponseDetails = (TextView) findViewById(R.id.response_details);
+//        try {
+//            checkSign(message, sign,publicKey);
+//        } catch (CertificateException | CMSException | OperatorCreationException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -101,25 +104,77 @@ public class TagReaderActivity extends AppCompatActivity {
         mTagManager.getAdapter().enableForegroundDispatch(this, pendingIntent, intentFilters, null);
     }
 
-    private void disableForegroundDispatchSystem() {
-        mTagManager.getAdapter().disableForegroundDispatch(this);
-    }
-
-    @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
+        tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        //do something with tagFromIntent
         if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-            tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
+            Toast.makeText(this, "NFC Intent", Toast.LENGTH_SHORT).show();
+            //NfcA nfca;
             try {
                 mTagManager.ntagInit(tagFromIntent);
                 mTagManager.ntagConnect();
+                mTagManager.ntagGetVersion();
+                Toast.makeText(this, "Tag response: "+ Util.bytesToHex(mTagManager.ntagGetLastAnswer()), Toast.LENGTH_SHORT).show();
+//                mTagManager.ntagRead((byte) 0xE0);
+//                mTagManager.ntagSectorSelect((byte) 0x03);
+//                mTagManager.ntagRead((byte) 0xF8);
 
-                mProgressBar.setVisibility(View.VISIBLE);
-                showResultByProcessType();
+                // Wait for hand over from I2C
+                boolean boolVar;
+                do {
+                    boolVar = true;
+                    mTagManager.setNfcATimeout(20);
+                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
 
-                mTagManager.setTimeout(100);
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x04);
+                byte[] page_1 = mTagManager.ntagGetLastAnswer();
+                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x08);
+                byte[] page_2 = mTagManager.ntagGetLastAnswer();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x0C);
+                byte[] page_3 = mTagManager.ntagGetLastAnswer();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x10);
+                byte[] page_4 = mTagManager.ntagGetLastAnswer();
+
+                String publicKey = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+                mTvReadTag.setText(publicKey);
+
+                // Write data back to NFC
+                mTagManager.ntagSectorSelect((byte) 0x00);
+
+                byte[] dataNull = {(byte) 0x01, (byte) 0x01 ,(byte) 0x01 ,(byte) 0x01};
+                byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
+                byte[] data2 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
+                byte[] data3 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
+
+                mTagManager.ntagWrite(data1, (byte) 0x05);
+                mTagManager.ntagWrite(data2, (byte) 0x06);
+                mTagManager.ntagWrite(data3, (byte) 0x07);
+
+                mTagManager.ntagWrite(dataNull, (byte) 0x04);
+
+
+ /*              Hand command back to MCU over I2C
+
+                byte[] dataCtrlFree = {(byte) 0x00, (byte) 0x00 ,(byte) 0x00 ,(byte) 0x00};
+                ntagWrite( dataCtrlFree, (byte) 0x04);
+                //TimeUnit.MILLISECONDS.sleep(1);
+
+*/
+                boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
+                int message = verified ? R.string.verification_success : R.string.verification_fail;
+                Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
+
+//                signMessageAndVerify();
+                mTagManager.setNfcATimeout(100);
                 mTagManager.ntagClose();
             } catch (Exception e) {
                 Toast.makeText(this, "Tag reading Error: ", Toast.LENGTH_SHORT).show();
@@ -128,29 +183,45 @@ public class TagReaderActivity extends AppCompatActivity {
         }
     }
 
-    private void showResultByProcessType(){
-        if(processType.equals(Constants.VALIDATION)){
+
+    /*
+     * Get the message introduced by the user, hash it and send to the antenna in order to sign it.
+     * Fetch the public key from the antenna to verify the signature received
+     */
+    private void signMessageAndVerify(){
+        try {
+
+//            byte[] hashString = Util.hashString("");
+
+            boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
+            int message = verified ? R.string.verification_success : R.string.verification_fail;
+            Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
+
             fetchAccountData();
-        }else{
-            signMessageAndVerify();
+        } catch (CertificateException | CMSException | OperatorCreationException e) {
+            e.printStackTrace();
         }
     }
 
-    private void fetchAccountData() {
+    private void fetchAccountData(){
         new RetrieveFeedTask().execute();
+    }
+
+    private void disableForegroundDispatchSystem() {
+        mTagManager.getAdapter().disableForegroundDispatch(this);
     }
 
     private class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
 
         protected void onPreExecute() {
+            mProgressBar.setVisibility(View.VISIBLE);
         }
 
         protected String doInBackground(Void... urls) {
-//            String address = Util.bytesToHex(mTagManager.getPublicKey());
+            String address = Util.bytesToHex(mTagManager.getPublicKey());
             try {
                 //Hacked address until the device read a correct one from the antenna
-//                URL url = getUrlWithParams("mobyyYFM7HafjFBtca9PAyN7TUAE5uiZFf");
-                URL url = getUrlWithParams("da7a66280914be1a8f0496598fc15f763cbd70b486f12ee815bf1d8815565c2b");
+                URL url = getUrlWithParams(address);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 try {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -161,10 +232,12 @@ public class TagReaderActivity extends AppCompatActivity {
                     }
                     bufferedReader.close();
                     return stringBuilder.toString();
-                } finally {
+                }
+                finally{
                     urlConnection.disconnect();
                 }
-            } catch (Exception e) {
+            }
+            catch(Exception e) {
                 Log.e(TAG, e.getMessage(), e);
                 return null;
             }
@@ -172,93 +245,41 @@ public class TagReaderActivity extends AppCompatActivity {
 
         protected void onPostExecute(String response) {
             mProgressBar.setVisibility(View.GONE);
-            setMockedData();
-//            if (response != null) {
-//                handleResponse(response);
-//            }
+            if(response != null){
+                handleResponse(response);
+            }
         }
     }
 
-    private void setMockedData(){
-        mResultMessage.setText(R.string.transaction_validated);
-        mResult.setText("Provenence and ownership of the product are valid and legitimate");
-        mResponseDetails.setText("http://localhost:9984/api/v1/transactions/da7a66280914be1a8f0496598fc15f763cbd70b 486f12ee815bf1d8815565c2b");
-    }
-
-//    private void handleResponse(String response) {
-//        try {
-//            JSONObject data = new JSONObject(response);
-//            if (data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)) {
-//                setBalanceInfo(new Balance(data.getJSONObject(Constants.JSON_DATA)));
-//            }else{
-//                mResultMessage.setText(R.string.transaction_not_validated);
-//            }
-
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    private void setBalanceInfo(Balance balance) {
-
-    }
-
-    private URL getUrlWithParams(String address) {
+    private void handleResponse(String response){
         try {
-            return new URL(getBalanceUrl()+ "/" + address);
+            JSONObject data = new JSONObject(response);
+            if(data.getString(Constants.JSON_STATUS).equals(Constants.JSON_SUCCESS)){
+                Balance balance = new Balance(data.getJSONObject(Constants.JSON_DATA));
+                setBalanceInfo(balance);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setBalanceInfo(Balance balance){
+        mTvReadTag.setVisibility(View.GONE);
+        mEtMessage.setVisibility(View.GONE);
+        mInfoLayout.setVisibility(View.VISIBLE);
+    }
+
+    private URL getUrlWithParams(String address){
+        try {
+            return new URL(getBalanceUrl() + NETWORK + "/" + address);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private String getBalanceUrl() {
-        return API_URL + GET_TRANSACTION;
-    }
-
-    /*
-    * Get the message introduced by the user, hash it and send to the antenna in order to sign it.
-    * Fetch the public key from the antenna to verify the signature received
-    */
-    private void signMessageAndVerify(){
-//        try {
-
-//            byte[] hashString = Util.hashString(mMessage);
-//            mTagManager.signMessage(hashString);
-
-//            Log.d(TAG,Util.bytesToHex(mTagManager.getMessage()));
-//
-//            mTagManager.ntagRead((byte) 0x04);
-//            Log.d(TAG,Util.bytesToHex(mTagManager.ntagGetLastAnswer()));
-
-//            //Wait until the tag is ready for be read
-//            do {
-//                boolean boolVar = true;
-//            } while (!mTagManager.ntagReadable());
-//
-//            mTagManager.parseSignResponse();
-//
-//            mTagManager.getKey();
-//            do {
-//                boolean boolVar = true;
-//            } while (!mTagManager.ntagReadable());
-//
-//            mTagManager.parseGetKeyResponse();
-//
-//            boolean verified = mTagManager.checkSign();
-//            mResultMessage.setText(verified ? R.string.verification_successfully : R.string.verification_fail);
-        mProgressBar.setVisibility(View.GONE);
-
-        mResultMessage.setText(R.string.verification_successfully);
-        mResult.setText("The product is an original produced by the brand A in 2017");
-        mResponseDetails.setText("D09EDDBD3B3C1FC28DDE8CCAAD24844DA3C9D63B978DEEF7D71BAE5395BA1030E7644655023639CC25A4409BC1072AF808CF98B036B373FC65EA7B617993C0BB");
-
-//        } catch (CertificateException e) {
-//            e.printStackTrace();
-//        } catch (CMSException e) {
-//            e.printStackTrace();
-//        } catch (OperatorCreationException e) {
-//            e.printStackTrace();
-//        }
+    private String getBalanceUrl(){
+        return API_URL + GET_BALANCE_URL;
     }
 }
