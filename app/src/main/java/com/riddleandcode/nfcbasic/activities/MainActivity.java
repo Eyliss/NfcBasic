@@ -129,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 mTagManager.ntagInit(tagFromIntent);
                 mTagManager.ntagConnect();
-                mTagManager.ntagGetVersion();
-                Toast.makeText(this, "Tag response: "+ Util.bytesToHex(mTagManager.ntagGetLastAnswer()), Toast.LENGTH_SHORT).show();
+//                mTagManager.ntagGetVersion();
+
 //                mTagManager.ntagRead((byte) 0xE0);
 //                mTagManager.ntagSectorSelect((byte) 0x03);
 //                mTagManager.ntagRead((byte) 0xF8);
@@ -142,10 +142,9 @@ public class MainActivity extends AppCompatActivity {
                     mTagManager.setNfcATimeout(20);
                 } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
 
-                mTagManager.ntagSectorSelect((byte) 0x00);
+                //Read the public key page by page
                 mTagManager.ntagRead((byte) 0x04);
                 byte[] page_1 = mTagManager.ntagGetLastAnswer();
-                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
 
                 mTagManager.ntagSectorSelect((byte) 0x00);
                 mTagManager.ntagRead((byte) 0x08);
@@ -160,7 +159,40 @@ public class MainActivity extends AppCompatActivity {
                 byte[] page_4 = mTagManager.ntagGetLastAnswer();
 
                 String publicKey = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+                Log.d(TAG,"Public key "+publicKey);
                 mTvReadTag.setText(publicKey);
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+
+                byte[] clearHandshakeBit = {(byte) 0x00, (byte) 0x00 ,(byte) 0x00 ,(byte) 0x00};
+                mTagManager.ntagWrite(clearHandshakeBit, (byte)0xD0);
+
+                do {
+                    boolVar = true;
+                    mTagManager.setNfcATimeout(20);
+                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
+
+                //Read the signature page by page
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x14);
+                page_1 = mTagManager.ntagGetLastAnswer();
+                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x18);
+                page_2 = mTagManager.ntagGetLastAnswer();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x1C);
+                page_3 = mTagManager.ntagGetLastAnswer();
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.ntagRead((byte) 0x20);
+                page_4 = mTagManager.ntagGetLastAnswer();
+
+                String signature = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+                Log.d(TAG,"Signature "+signature);
+                mTvReadTag.setText(signature);
 
                 // Write data back to NFC
                 mTagManager.ntagSectorSelect((byte) 0x00);
@@ -184,14 +216,15 @@ public class MainActivity extends AppCompatActivity {
                 //TimeUnit.MILLISECONDS.sleep(1);
 
 */
-                boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
-                int message = verified ? R.string.verification_success : R.string.verification_fail;
-                Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
+//                boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
+//                int message = verified ? R.string.verification_success : R.string.verification_fail;
+//                Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
 
 //                signMessageAndVerify();
                 mTagManager.setNfcATimeout(100);
                 mTagManager.ntagClose();
             } catch (Exception e) {
+                e.printStackTrace();
                 Toast.makeText(this, "Tag reading Error: ", Toast.LENGTH_SHORT).show();
 
             }
