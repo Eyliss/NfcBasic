@@ -5,13 +5,11 @@ import com.riddleandcode.nfcbasic.R;
 import com.riddleandcode.nfcbasic.managers.TagManager;
 import com.riddleandcode.nfcbasic.models.Balance;
 import com.riddleandcode.nfcbasic.utils.Constants;
-import com.riddleandcode.nfcbasic.utils.Crypto;
 import com.riddleandcode.nfcbasic.utils.Util;
 
 import io.fabric.sdk.android.Fabric;
 
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.cms.CMSException;
@@ -20,7 +18,6 @@ import org.spongycastle.operator.OperatorCreationException;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.nfc.FormatException;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
@@ -63,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private Tag tagFromIntent;
     private TagManager mTagManager;
-
-    private String mMessage;
 
     public MainActivity() throws DecoderException {
     }
@@ -126,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         //do something with tagFromIntent
         if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
             Toast.makeText(this, "NFC Intent", Toast.LENGTH_SHORT).show();
@@ -136,9 +131,9 @@ public class MainActivity extends AppCompatActivity {
                 mTagManager.ntagConnect();
                 mTagManager.ntagGetVersion();
                 Toast.makeText(this, "Tag response: "+ Util.bytesToHex(mTagManager.ntagGetLastAnswer()), Toast.LENGTH_SHORT).show();
-                // ntagRead((byte) 0xE0);
-                // ntagSectorSelect((byte) 0x03);
-                // ntagRead((byte) 0xF8);
+//                mTagManager.ntagRead((byte) 0xE0);
+//                mTagManager.ntagSectorSelect((byte) 0x03);
+//                mTagManager.ntagRead((byte) 0xF8);
 
                 // Wait for hand over from I2C
                 boolean boolVar;
@@ -149,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
 
                 mTagManager.ntagSectorSelect((byte) 0x00);
                 mTagManager.ntagRead((byte) 0x04);
-                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
                 byte[] page_1 = mTagManager.ntagGetLastAnswer();
+                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
 
                 mTagManager.ntagSectorSelect((byte) 0x00);
                 mTagManager.ntagRead((byte) 0x08);
@@ -164,10 +159,10 @@ public class MainActivity extends AppCompatActivity {
                 mTagManager.ntagRead((byte) 0x10);
                 byte[] page_4 = mTagManager.ntagGetLastAnswer();
 
-                mTvReadTag.setText(Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4));
+                String publicKey = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+                mTvReadTag.setText(publicKey);
 
                 // Write data back to NFC
-
                 mTagManager.ntagSectorSelect((byte) 0x00);
 
                 byte[] dataNull = {(byte) 0x01, (byte) 0x01 ,(byte) 0x01 ,(byte) 0x01};
@@ -188,9 +183,12 @@ public class MainActivity extends AppCompatActivity {
                 ntagWrite( dataCtrlFree, (byte) 0x04);
                 //TimeUnit.MILLISECONDS.sleep(1);
 
-
 */
+                boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
+                int message = verified ? R.string.verification_success : R.string.verification_fail;
+                Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
 
+//                signMessageAndVerify();
                 mTagManager.setNfcATimeout(100);
                 mTagManager.ntagClose();
             } catch (Exception e) {
@@ -208,23 +206,14 @@ public class MainActivity extends AppCompatActivity {
     private void signMessageAndVerify(){
         try {
 
-            byte[] hashString = Util.hashString(mMessage);
+//            byte[] hashString = Util.hashString("");
 
-            boolean verified = mTagManager.checkSign(hashString);
+            boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
             int message = verified ? R.string.verification_success : R.string.verification_fail;
             Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (CMSException e) {
-            e.printStackTrace();
-        } catch (OperatorCreationException e) {
+            fetchAccountData();
+        } catch (CertificateException | CMSException | OperatorCreationException e) {
             e.printStackTrace();
         }
     }
