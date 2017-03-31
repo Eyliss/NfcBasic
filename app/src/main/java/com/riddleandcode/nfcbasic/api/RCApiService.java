@@ -20,41 +20,23 @@ import retrofit2.http.Url;
 public interface RCApiService {
 
     //Authenticate a user
-    @FormUrlEncoded
-    @POST("users/auth")
-    Call<RCApiResponse> login(
-          @Field("email") String email,
-          @Field("password") String password);
+    @GET("rng_get")
+    Call<RCApiResponse> getRng();
 
     //Add a new user
-    @FormUrlEncoded
-    @POST("users")
-    Call<RCApiResponse> addUser(
-          @Field("username") String username,
-          @Field("email") String email,
-          @Field("password") String password,
-          @Field("password_confirmation") String confirmation,
-          @Field("first_name") String firstName,
-          @Field("last_name") String lastName
-    );
+    @GET("pubk_get")
+    Call<RCApiResponse> getPublicKey();
 
     //Send reset password email to user
     @FormUrlEncoded
-    @POST("users/password/email")
-    Call<RCApiResponse> recoveryPassword(
-          @Field("email") String email
+    @POST("hash")
+    Call<RCApiResponse> hash(
+          @Field("s") String message
     );
 
     //Get an address balance
-    @GET("get_address_balance/{network}/{address}")
-    Call<RCApiResponse> getAddressBalance(
-          @Path("network") String network,
-          @Path("address") String address
-    );
-
-    //Get address transactions
-    @GET("transactions/{address}")
-    Call<RCApiResponse> getTransactions(
-          @Path("address") String address
+    @POST("sign")
+    Call<RCApiResponse> sign(
+          @Field("s") String signature
     );
 }

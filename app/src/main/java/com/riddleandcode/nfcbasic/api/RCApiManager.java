@@ -7,7 +7,7 @@ public class RCApiManager {
 
     static RCApiService RCService = ServiceGenerator.createService(RCApiService.class);
 
-    public static void login(String email, String password, Callback<RCApiResponse> callback){
+    public static void getRng(String email, String password, Callback<RCApiResponse> callback){
         Call<RCApiResponse> call = RCService.login(email,password);
         call.enqueue(callback);
     }
