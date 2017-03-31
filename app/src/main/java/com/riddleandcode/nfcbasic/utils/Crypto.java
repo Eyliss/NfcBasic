@@ -67,18 +67,10 @@ public class Crypto {
             signature.initVerify(testKey);
             signature.update(message);
 
-            byte[] rowbyte = new byte[64];
-            for (int i = 0; i <64 ; i++) {
-                if (i<32)
-                    rowbyte[i] = (byte) sign[31-i];
-                else
-                    rowbyte[i] = (byte) sign[95-i];
-            }
+//            boolean success = signature.verify(message);
+//            Log.d("Crypto","Verification success: " + success);
 
-            boolean success = signature.verify(rowbyte);
-            Log.d("Crypto","Verification success: " + success);
-
-            return success;
+            return false;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,40 +104,47 @@ public class Crypto {
 //        return pk;
 //    }
 
-    private static PublicKey getPublicKeyFromBytes(byte[] pubKey) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException {
-
-        ECGenParameterSpec ecParamSpec = new ECGenParameterSpec("prime256v1");//select curve
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
-        kpg.initialize(ecParamSpec);
-        KeyPair kpA = kpg.generateKeyPair();
-        ECPublicKey apk= (ECPublicKey) kpA.getPublic();//get a publickey in secp256r1 format
-        byte[] android_pk_encode = apk.getEncoded();
-        System.arraycopy(pubKey,0,android_pk_encode,android_pk_encode.length-pubKey.length,pubKey.length);
-        //keep the head remained while replace the ECPoint data by the row byte array from 10040
-        X509EncodedKeySpec ecpks = new X509EncodedKeySpec(android_pk_encode);
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        ECPublicKey ECDHpk  = null;
-        try {
-            ECDHpk = (ECPublicKey) keyFactory.generatePublic(ecpks);
-            Log.d("Crypto",ECDHpk.toString());
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();//failed in generating publickey!!!
-        }
-        return  ECDHpk;
-
-    }
-
-//    private static PublicKey getPublicKeyFromBytes(byte[] pubKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
-//        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("prime256v1");
-//        KeyFactory kf = KeyFactory.getInstance("ECDSA", new BouncyCastleProvider());
-//        ECNamedCurveSpec params = new ECNamedCurveSpec("prime256v1", spec.getCurve(), spec.getG(), spec.getN());
-//        java.security.spec.ECPoint point =  ECPointUtil.decodePoint(params.getCurve(), pubKey);
-//        java.security.spec.ECPublicKeySpec pubKeySpec = new java.security.spec.ECPublicKeySpec(point, params);
-//        ECPublicKey pk = (ECPublicKey) kf.generatePublic(pubKeySpec);
-//        Log.d("Crypto","Public key "+pk);
+//    private static PublicKey getPublicKeyFromBytes(byte[] pubKey) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException {
 //
-//        return pk;
+//        byte[] rowbyte = new byte[64];
+//
+//        for (int i = 0; i <64 ; i++) {
+//            if (i<32)
+//                rowbyte[i] = (byte) pubKey[31-i];
+//            else
+//                rowbyte[i] = (byte) pubKey[95-i];
+//        }
+//        ECGenParameterSpec ecParamSpec = new ECGenParameterSpec("secp256r1");//select curve
+//        KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
+//        kpg.initialize(ecParamSpec);
+//        KeyPair kpA = kpg.generateKeyPair();
+//        ECPublicKey apk= (ECPublicKey) kpA.getPublic();//get a publickey in secp256r1 format
+//        byte[] android_pk_encode = apk.getEncoded();
+//        System.arraycopy(rowbyte,0,android_pk_encode,android_pk_encode.length-rowbyte.length,rowbyte.length);
+//        //keep the head remained while replace the ECPoint data by the row byte array from 10040
+//        X509EncodedKeySpec ecpks = new X509EncodedKeySpec(android_pk_encode);
+//        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+//        ECPublicKey ECDHpk  = null;
+//        try {
+//            ECDHpk = (ECPublicKey) keyFactory.generatePublic(ecpks);
+//        } catch (InvalidKeySpecException e) {
+//            e.printStackTrace();//failed in generating publickey!!!
+//        }
+//        return ECDHpk;//show the information by textview in an activity
+//
 //    }
+
+    private static PublicKey getPublicKeyFromBytes(byte[] pubKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("prime256v1");
+        KeyFactory kf = KeyFactory.getInstance("ECDSA", new BouncyCastleProvider());
+        ECNamedCurveSpec params = new ECNamedCurveSpec("prime256v1", spec.getCurve(), spec.getG(), spec.getN());
+        java.security.spec.ECPoint point =  ECPointUtil.decodePoint(params.getCurve(), pubKey);
+        java.security.spec.ECPublicKeySpec pubKeySpec = new java.security.spec.ECPublicKeySpec(point, params);
+        ECPublicKey pk = (ECPublicKey) kf.generatePublic(pubKeySpec);
+        Log.d("Crypto","Public key "+pk);
+
+        return pk;
+    }
 
     /**
      * This method converts the uncompressed raw EC public key into java.security.interfaces.ECPublicKey
