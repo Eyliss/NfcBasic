@@ -135,78 +135,78 @@ public class MainActivity extends AppCompatActivity {
 //                mTagManager.ntagSectorSelect((byte) 0x03);
 //                mTagManager.ntagRead((byte) 0xF8);
 
-                // Wait for hand over from I2C
-                boolean boolVar;
-                do {
-                    boolVar = true;
-                    mTagManager.setNfcATimeout(20);
-                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
-
-                //Read the public key page by page
-                mTagManager.ntagRead((byte) 0x04);
-                byte[] page_1 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x08);
-                byte[] page_2 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x0C);
-                byte[] page_3 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x10);
-                byte[] page_4 = mTagManager.ntagGetLastAnswer();
-
-                String publicKey = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
-                Log.d(TAG,"Public key "+publicKey);
-                mTvReadTag.setText(publicKey);
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-
-                byte[] clearHandshakeBit = {(byte) 0x00, (byte) 0x00 ,(byte) 0x00 ,(byte) 0x00};
-                mTagManager.ntagWrite(clearHandshakeBit, (byte)0xD0);
-
-                do {
-                    boolVar = true;
-                    mTagManager.setNfcATimeout(20);
-                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
-
-                //Read the signature page by page
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x14);
-                page_1 = mTagManager.ntagGetLastAnswer();
-                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x18);
-                page_2 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x1C);
-                page_3 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x20);
-                page_4 = mTagManager.ntagGetLastAnswer();
-
-                String signature = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
-                Log.d(TAG,"Signature "+signature);
-                mTvReadTag.setText(signature);
-
-                // Write data back to NFC
-                mTagManager.ntagSectorSelect((byte) 0x00);
-
-                byte[] dataNull = {(byte) 0x01, (byte) 0x01 ,(byte) 0x01 ,(byte) 0x01};
-                byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
-                byte[] data2 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
-                byte[] data3 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
-
-                mTagManager.ntagWrite(data1, (byte) 0x05);
-                mTagManager.ntagWrite(data2, (byte) 0x06);
-                mTagManager.ntagWrite(data3, (byte) 0x07);
-
-                mTagManager.ntagWrite(dataNull, (byte) 0x04);
+//                // Wait for hand over from I2C
+//                boolean boolVar;
+//                do {
+//                    boolVar = true;
+//                    mTagManager.setNfcATimeout(20);
+//                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
+//
+//                //Read the public key page by page
+//                mTagManager.ntagRead((byte) 0x04);
+//                byte[] page_1 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x08);
+//                byte[] page_2 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x0C);
+//                byte[] page_3 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x10);
+//                byte[] page_4 = mTagManager.ntagGetLastAnswer();
+//
+//                String publicKey = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+//                Log.d(TAG,"Public key "+publicKey);
+//                mTvReadTag.setText(publicKey);
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//
+//                byte[] clearHandshakeBit = {(byte) 0x00, (byte) 0x00 ,(byte) 0x00 ,(byte) 0x00};
+//                mTagManager.ntagWrite(clearHandshakeBit, (byte)0xD0);
+//
+//                do {
+//                    boolVar = true;
+//                    mTagManager.setNfcATimeout(20);
+//                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
+//
+//                //Read the signature page by page
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x14);
+//                page_1 = mTagManager.ntagGetLastAnswer();
+//                //Toast.makeText(this, "Tag response: "+ bytesToHex(answer), Toast.LENGTH_SHORT).show();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x18);
+//                page_2 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x1C);
+//                page_3 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x20);
+//                page_4 = mTagManager.ntagGetLastAnswer();
+//
+//                String signature = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+//                Log.d(TAG,"Signature "+signature);
+//                mTvReadTag.setText(signature);
+//
+//                // Write data back to NFC
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//
+//                byte[] dataNull = {(byte) 0x01, (byte) 0x01 ,(byte) 0x01 ,(byte) 0x01};
+//                byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
+//                byte[] data2 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
+//                byte[] data3 = {(byte) 0x31, (byte) 0x42, (byte) 0x33, (byte) 0x44};
+//
+//                mTagManager.ntagWrite(data1, (byte) 0x05);
+//                mTagManager.ntagWrite(data2, (byte) 0x06);
+//                mTagManager.ntagWrite(data3, (byte) 0x07);
+//
+//                mTagManager.ntagWrite(dataNull, (byte) 0x04);
 
 
  /*              Hand command back to MCU over I2C
@@ -216,9 +216,9 @@ public class MainActivity extends AppCompatActivity {
                 //TimeUnit.MILLISECONDS.sleep(1);
 
 */
-//                boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
-//                int message = verified ? R.string.verification_success : R.string.verification_fail;
-//                Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
+                boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
+                int message = verified ? R.string.verification_success : R.string.verification_fail;
+                Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
 
 //                signMessageAndVerify();
                 mTagManager.setNfcATimeout(100);
