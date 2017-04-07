@@ -23,17 +23,17 @@ import java.security.cert.CertificateException;
 
 public class TagManager {
 
-    byte[] hash = Util.convertIntToByteArray(new int[]{
-          0x98, 0x34, 0x87, 0x6d, 0xcf, 0xb0, 0x5c, 0xb1, 0x67, 0xa5, 0xc2, 0x49, 0x53, 0xeb, 0xa5, 0x8c,
-          0x4a, 0xc8, 0x9b, 0x1a, 0xdf, 0x57, 0xf2, 0x8f, 0x2f, 0x9d, 0x09, 0xaf, 0x10, 0x7e, 0xe8, 0xf0
-    });
-    byte[] signature = Util.convertIntToByteArray(new int[]{
-          0x19,0x48,0xd6,0x4c,0x60,0x3e,0x29,0x03,0x5a,0x79,0x26,0xf7,0xb3,0xcd,0x32,
-          0x35,0xae,0xcd,0x1a,0x39,0x81,0x6e,0x74,0x93,0x22,0x87,0x81,0x4e,0xea,0x52,
-          0xfe,0x27,0xe2,0xcc,0x4e,0xc4,0x17,0x1c,0x94,0xc3,0x72,0x87,0x0b,0x8d,0x4f,
-          0xf4,0x33,0x37,0xad,0x12,0xd0,0x1e,0xf7,0xcf,0xd5,0x2c,0x7b,0x43,0x28,0x69,
-          0x57,0x6c,0xad,0x97
-    });
+//    byte[] hash = Util.convertIntToByteArray(new int[]{
+//          0x98, 0x34, 0x87, 0x6d, 0xcf, 0xb0, 0x5c, 0xb1, 0x67, 0xa5, 0xc2, 0x49, 0x53, 0xeb, 0xa5, 0x8c,
+//          0x4a, 0xc8, 0x9b, 0x1a, 0xdf, 0x57, 0xf2, 0x8f, 0x2f, 0x9d, 0x09, 0xaf, 0x10, 0x7e, 0xe8, 0xf0
+//    });
+//    byte[] signature = Util.convertIntToByteArray(new int[]{
+//          0x19,0x48,0xd6,0x4c,0x60,0x3e,0x29,0x03,0x5a,0x79,0x26,0xf7,0xb3,0xcd,0x32,
+//          0x35,0xae,0xcd,0x1a,0x39,0x81,0x6e,0x74,0x93,0x22,0x87,0x81,0x4e,0xea,0x52,
+//          0xfe,0x27,0xe2,0xcc,0x4e,0xc4,0x17,0x1c,0x94,0xc3,0x72,0x87,0x0b,0x8d,0x4f,
+//          0xf4,0x33,0x37,0xad,0x12,0xd0,0x1e,0xf7,0xcf,0xd5,0x2c,0x7b,0x43,0x28,0x69,
+//          0x57,0x6c,0xad,0x97
+//    });
 
 //    byte[] publicKey = Util.convertIntToByteArray(new int[]{
 //          0xaa,0x8b,0xc7,0x74,0x64,0x6a,0xdf,0x5c,0x9b,0x75,0x36,0x52,0x37,0x9d,0xe8,
@@ -50,13 +50,13 @@ public class TagManager {
 
 //    byte[] publicKey = Util.hexStringToByteArray("618f75bdb193aec27743d92b710bc856445756d5e7ef54385dbcc47487516e96362264f78a9b466f3b8e3eb9570773365083225c701eff39400aa9607817a6d5");
 
-    byte[] publicKey = Hex.decodeHex("049a55ad1e210cd113457ccd3465b930c9e7ade5e760ef64b63142dad43a308ed08e2d85632e8ff0322d3c7fda14409eafdc4c5b8ee0882fe885c92e3789c36a7a".toCharArray());
-//    byte[] hash = Hex.decodeHex("54686973206973206a75737420736f6d6520706f696e746c6573732064756d6d7920737472696e672e205468616e6b7320616e7977617920666f722074616b696e67207468652074696d6520746f206465636f6465206974203b2d29".toCharArray());
+//    byte[] publicKey = Hex.decodeHex("049a55ad1e210cd113457ccd3465b930c9e7ade5e760ef64b63142dad43a308ed08e2d85632e8ff0322d3c7fda14409eafdc4c5b8ee0882fe885c92e3789c36a7a".toCharArray());
+//    byte[] sendHash = Hex.decodeHex("54686973206973206a75737420736f6d6520706f696e746c6573732064756d6d7920737472696e672e205468616e6b7320616e7977617920666f722074616b696e67207468652074696d6520746f206465636f6465206974203b2d29".toCharArray());
 //    byte[] signature = Hex.decodeHex("304402205fef461a4714a18a5ca6dce6d5ab8604f09f3899313a28ab430eb9860f8be9d602203c8d36446be85383af3f2e8630f40c4172543322b5e8973e03fff2309755e654".toCharArray());
 
-//    byte[] publicKey;
-//    byte[] message;
-//    byte[] signature;
+    String publicKey;
+    String hashMessage;
+    String signature;
 
     private NfcAdapter nfcAdapter;
     private NfcA nfca;
@@ -202,20 +202,32 @@ public class TagManager {
      * @param message the message
      * @return true if the signature is that of the message with the expected private key
      */
-    public boolean checkSign(byte[] message) throws CertificateException, CMSException, OperatorCreationException {
-        return Crypto.verify(message, signature, publicKey);
+//    public boolean checkSign(byte[] message) throws CertificateException, CMSException, OperatorCreationException {
+//        return Crypto.verify(message, signature, publicKey);
+//    }
+
+    public String getHashMessage(){
+        return hashMessage;
     }
 
-    public byte[] getHashMessage(){
-        return hash;
-    }
-
-    public byte[] getPublicKey(){
+    public String getPublicKey(){
         return publicKey;
     }
 
-    public byte[] getSignature(){
+    public String getSignature(){
         return signature;
     }
 
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public void setHashMessage(String hashMessage) {
+        this.hashMessage = hashMessage;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
 }

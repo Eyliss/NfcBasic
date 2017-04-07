@@ -2,12 +2,17 @@ package com.riddleandcode.nfcbasic.activities;
 
 import com.crashlytics.android.Crashlytics;
 import com.riddleandcode.nfcbasic.R;
+import com.riddleandcode.nfcbasic.api.RCApiManager;
+import com.riddleandcode.nfcbasic.api.RCApiResponse;
 import com.riddleandcode.nfcbasic.managers.TagManager;
 import com.riddleandcode.nfcbasic.models.Balance;
 import com.riddleandcode.nfcbasic.utils.Constants;
 import com.riddleandcode.nfcbasic.utils.Util;
 
 import io.fabric.sdk.android.Fabric;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
@@ -70,6 +75,7 @@ public class TagReaderActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_validation);
 
+        mTvReadTag = (TextView) findViewById(R.id.result_message);
         try {
             mTagManager = new TagManager(this);
         } catch (DecoderException e) {
@@ -77,7 +83,7 @@ public class TagReaderActivity extends AppCompatActivity {
         }
 
 //        try {
-//            checkSign(message, sign,publicKey);
+//            checkSign(message, sendSignature,publicKey);
 //        } catch (CertificateException | CMSException | OperatorCreationException e) {
 //            e.printStackTrace();
 //        }
@@ -117,13 +123,6 @@ public class TagReaderActivity extends AppCompatActivity {
                 mTagManager.ntagConnect();
 //                mTagManager.ntagGetVersion();
 
-                // Wait for hand over from I2C
-//                boolean boolVar;
-//                do {
-//                    boolVar = true;
-//                    mTagManager.setNfcATimeout(20);
-//                } while(mTagManager.ntagReadBit((byte) 0xD0,0x00, 0x00) != 0x01);
-
                 //Read the public key page by page
                 mTagManager.ntagRead((byte) 0x04);
                 byte[] page_1 = mTagManager.ntagGetLastAnswer();
@@ -144,41 +143,46 @@ public class TagReaderActivity extends AppCompatActivity {
                 Log.d(TAG,"Public key "+publicKey);
                 mTvReadTag.setText(publicKey);
 
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.setNfcATimeout(20);
-
-                byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
-                mTagManager.ntagWrite(data1, (byte) 0xF0);
-                mTagManager.setNfcATimeout(20);
-
-                mTagManager.ntagWrite(data1, (byte) 0xF1);
-                mTagManager.setNfcATimeout(20);
-
-                mTagManager.ntagWrite(data1, (byte) 0xF2);
-                mTagManager.setNfcATimeout(20);
-
-                mTagManager.ntagWrite(data1, (byte) 0xF3);
-                mTagManager.setNfcATimeout(20);
-
-                mTagManager.setNfcATimeout(1000);
-                mTagManager.ntagRead((byte) 0xF0);
-                page_1 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0xF1);
-                page_2 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0xF2);
-                page_3 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0xF3);
-                page_4 = mTagManager.ntagGetLastAnswer();
-
-                String signature = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
-                Log.d(TAG,"Signatrue "+publicKey);
-                mTvReadTag.setText(signature);
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.setNfcATimeout(20);
+//
+//                byte[] data1 = {(byte) 0x41, (byte) 0x42 ,(byte) 0x43 ,(byte) 0x44};
+//                mTagManager.ntagWrite(data1, (byte) 0xF0);
+//                mTagManager.setNfcATimeout(20);
+//
+//                mTagManager.ntagWrite(data1, (byte) 0xF1);
+//                mTagManager.setNfcATimeout(20);
+//
+//                mTagManager.ntagWrite(data1, (byte) 0xF2);
+//                mTagManager.setNfcATimeout(20);
+//
+//                mTagManager.ntagWrite(data1, (byte) 0xF3);
+//                mTagManager.setNfcATimeout(20);
+//
+//                mTagManager.setNfcATimeout(1000);
+//                mTagManager.ntagRead((byte) 0xF0);
+//                page_1 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0xF1);
+//                page_2 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0xF2);
+//                page_3 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0xF3);
+//                page_4 = mTagManager.ntagGetLastAnswer();
+//
+//                String signature = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+//                Log.d(TAG,"Signatrue "+signature);
+//                mTvReadTag.setText(signature);
+                mTagManager.setSignature(publicKey);
+                sendSignatureToServer();
+                sendHash();
+                getPublicKey();
+                getRng();
 
 //                mTagManager.ntagWrite(data1, (byte) 0xF4);
 //                mTagManager.setNfcATimeout(20);
@@ -273,96 +277,85 @@ public class TagReaderActivity extends AppCompatActivity {
                 //TimeUnit.MILLISECONDS.sleep(1);
 
 */
-//                boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
-//                int message = verified ? R.string.verification_success : R.string.verification_fail;
-//                Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
 
-//                signMessageAndVerify();
                 mTagManager.setNfcATimeout(100);
                 mTagManager.ntagClose();
             } catch (Exception e) {
                 e.printStackTrace();
-                try {
-                    Log.d(TAG,"Tag reading Error: "+e.getMessage());
-                    readFromTag();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                } catch (FormatException e1) {
-                    e1.printStackTrace();
-                }
+
             }
         }
     }
 
-    private void readFromTag() throws IOException, FormatException {
-
-    }
-    /*
-     * Get the message introduced by the user, hash it and send to the antenna in order to sign it.
+     /* Get the message introduced by the user, sendHash it and send to the antenna in order to sendSignature it.
      * Fetch the public key from the antenna to verify the signature received
      */
-    private void signMessageAndVerify(){
-        try {
+    private void sendSignatureToServer(){
+        RCApiManager.sendSignature(mTagManager.getSignature(), new Callback<RCApiResponse>() {
+            @Override
+            public void onResponse(Call<RCApiResponse> call, Response<RCApiResponse> response) {
+                RCApiResponse kabinettApiResponse = response.body();
+                Log.d(TAG,"Send signature to server "+kabinettApiResponse.getData());
+            }
 
-//            byte[] hashString = Util.hashString("");
+            @Override
+            public void onFailure(Call<RCApiResponse> call, Throwable t) {
 
-            boolean verified = mTagManager.checkSign(mTagManager.getHashMessage());
-            int message = verified ? R.string.verification_success : R.string.verification_fail;
-            Toast.makeText(this,getString(message),Toast.LENGTH_SHORT).show();
-
-            fetchAccountData();
-        } catch (CertificateException | CMSException | OperatorCreationException e) {
-            e.printStackTrace();
-        }
+            }
+        });
     }
 
-    private void fetchAccountData(){
-        new RetrieveFeedTask().execute();
+    private void sendHash(){
+        RCApiManager.sendHashMessage("Hello world", new Callback<RCApiResponse>() {
+            @Override
+            public void onResponse(Call<RCApiResponse> call, Response<RCApiResponse> response) {
+                RCApiResponse kabinettApiResponse = response.body();
+                Log.d(TAG,"Send hash to server "+kabinettApiResponse.getData());
+            }
+
+            @Override
+            public void onFailure(Call<RCApiResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getRng(){
+        RCApiManager.getRng(new Callback<RCApiResponse>() {
+            @Override
+            public void onResponse(Call<RCApiResponse> call, Response<RCApiResponse> response) {
+                RCApiResponse kabinettApiResponse = response.body();
+                Log.d(TAG,"Get rng "+kabinettApiResponse.getData());
+
+            }
+
+            @Override
+            public void onFailure(Call<RCApiResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getPublicKey(){
+        RCApiManager.getPublicKey(new Callback<RCApiResponse>() {
+            @Override
+            public void onResponse(Call<RCApiResponse> call, Response<RCApiResponse> response) {
+                RCApiResponse kabinettApiResponse = response.body();
+                Log.d(TAG,"Get public key "+kabinettApiResponse.getData());
+
+            }
+
+            @Override
+            public void onFailure(Call<RCApiResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     private void disableForegroundDispatchSystem() {
         mTagManager.getAdapter().disableForegroundDispatch(this);
     }
 
-    private class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
-
-        protected void onPreExecute() {
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
-
-        protected String doInBackground(Void... urls) {
-            String address = Util.bytesToHex(mTagManager.getPublicKey());
-            try {
-                //Hacked address until the device read a correct one from the antenna
-                URL url = getUrlWithParams(address);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(line).append("\n");
-                    }
-                    bufferedReader.close();
-                    return stringBuilder.toString();
-                }
-                finally{
-                    urlConnection.disconnect();
-                }
-            }
-            catch(Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-                return null;
-            }
-        }
-
-        protected void onPostExecute(String response) {
-            mProgressBar.setVisibility(View.GONE);
-            if(response != null){
-                handleResponse(response);
-            }
-        }
-    }
 
     private void handleResponse(String response){
         try {

@@ -7,28 +7,23 @@ public class RCApiManager {
 
     static RCApiService RCService = ServiceGenerator.createService(RCApiService.class);
 
-    public static void getRng(String email, String password, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCService.login(email,password);
+    public static void getRng(Callback<RCApiResponse> callback){
+        Call<RCApiResponse> call = RCService.getRng();
         call.enqueue(callback);
     }
 
-    public static void addUser(String username, String email, String password, String confirmation, String firstName, String lastName, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCService.addUser(username, email,password,confirmation,firstName,lastName);
+    public static void getPublicKey(Callback<RCApiResponse> callback){
+        Call<RCApiResponse> call = RCService.getPublicKey();
         call.enqueue(callback);
     }
 
-    public static void recoveryPassword(String email, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCService.recoveryPassword(email);
+    public static void sendHashMessage(String message, Callback<RCApiResponse> callback){
+        Call<RCApiResponse> call = RCService.sendHash(message);
         call.enqueue(callback);
     }
 
-    public static void getAddressBalance(String network, String address, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCService.getAddressBalance(network,address);
-        call.enqueue(callback);
-    }
-
-    public static void getTransactions(String address, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCService.getTransactions(address);
+    public static void sendSignature(String signature, Callback<RCApiResponse> callback){
+        Call<RCApiResponse> call = RCService.sendSignature(signature);
         call.enqueue(callback);
     }
 
