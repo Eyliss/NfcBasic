@@ -47,17 +47,11 @@
                       android:textSize="22sp"
                       android:textStyle="bold"
                       android:layout_marginTop="@dimen/activity_vertical_margin"/>
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:text="#da7a66"
-                      android:textColor="@color/amaranth"
-                      android:layout_gravity="center_vertical"
-                      android:gravity="center"
-                      android:textSize="32sp"
-                      android:layout_marginTop="@dimen/activity_vertical_margin"/>
             <TextView
-                    android:id="@+id/result_message"
-                    android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:textColor="@color/tuna"
+                    android:id="@+id/validation_challenge"
+                    android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:textColor="@color/amaranth"
                       android:layout_gravity="center_vertical"
                       android:gravity="center"
                       android:textSize="16sp"

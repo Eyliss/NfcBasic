@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.cms.CMSException;
 import org.spongycastle.operator.OperatorCreationException;
+import org.w3c.dom.Text;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -53,7 +54,10 @@ public class TagReaderActivity extends AppCompatActivity {
     private static String GET_BALANCE_URL = "/get_address_balance";
     private static String NETWORK = "/BTCTEST";
 
-    private TextView mTvReadTag;
+    private TextView mValidationChallenge;
+    private TextView mTvResponseDetails;
+    private TextView mTvResult;
+
     private LinearLayout mInfoLayout;
     private TextView mNetwork;
     private TextView mConfirmedBalance;
@@ -63,6 +67,7 @@ public class TagReaderActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private Tag tagFromIntent;
     private TagManager mTagManager;
+    private String process;
 
     public TagReaderActivity() throws DecoderException {
     }
@@ -73,20 +78,25 @@ public class TagReaderActivity extends AppCompatActivity {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
         Fabric.with(this, new Crashlytics());
 
-        setContentView(R.layout.activity_validation);
-
-        mTvReadTag = (TextView) findViewById(R.id.result_message);
         try {
             mTagManager = new TagManager(this);
         } catch (DecoderException e) {
             e.printStackTrace();
         }
 
-//        try {
-//            checkSign(message, sendSignature,publicKey);
-//        } catch (CertificateException | CMSException | OperatorCreationException e) {
-//            e.printStackTrace();
-//        }
+        process = getIntent().getStringExtra(Constants.INTENT_PROCESS_TYPE);
+
+        if(process.equals(Constants.VALIDATION)){
+            setContentView(R.layout.activity_validation);
+            mValidationChallenge = (TextView)findViewById(R.id.validation_challenge);
+            mValidationChallenge.setText(mTagManager.getChallenge());
+            mTvResult = (TextView) findViewById(R.id.result);
+            mTvResponseDetails = (TextView) findViewById(R.id.response_details);
+        }else{
+            setContentView(R.layout.activity_verification);
+        }
+
+
     }
 
     @Override
@@ -116,7 +126,6 @@ public class TagReaderActivity extends AppCompatActivity {
         tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         //do something with tagFromIntent
         if(intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
-            Toast.makeText(this, "NFC Intent", Toast.LENGTH_SHORT).show();
             //NfcA nfca;
             try {
                 mTagManager.ntagInit(tagFromIntent);
@@ -124,24 +133,29 @@ public class TagReaderActivity extends AppCompatActivity {
 //                mTagManager.ntagGetVersion();
 
                 //Read the public key page by page
-                mTagManager.ntagRead((byte) 0x04);
-                byte[] page_1 = mTagManager.ntagGetLastAnswer();
+//                mTagManager.ntagRead((byte) 0x04);
+//                byte[] page_1 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x08);
+//                byte[] page_2 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x0C);
+//                byte[] page_3 = mTagManager.ntagGetLastAnswer();
+//
+//                mTagManager.ntagSectorSelect((byte) 0x00);
+//                mTagManager.ntagRead((byte) 0x10);
+//                byte[] page_4 = mTagManager.ntagGetLastAnswer();
+//
+//                String publicKey = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
+//                mTagManager.setSignature(publicKey);
 
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x08);
-                byte[] page_2 = mTagManager.ntagGetLastAnswer();
 
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x0C);
-                byte[] page_3 = mTagManager.ntagGetLastAnswer();
-
-                mTagManager.ntagSectorSelect((byte) 0x00);
-                mTagManager.ntagRead((byte) 0x10);
-                byte[] page_4 = mTagManager.ntagGetLastAnswer();
-
-                String publicKey = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
-                Log.d(TAG,"Public key "+publicKey);
-                mTvReadTag.setText(publicKey);
+//                sendSignatureToServer();
+//                sendHash();
+//                getPublicKey();
+//                getRng();
 
 //                mTagManager.ntagSectorSelect((byte) 0x00);
 //                mTagManager.setNfcATimeout(20);
@@ -178,11 +192,7 @@ public class TagReaderActivity extends AppCompatActivity {
 //                String signature = Util.bytesToHex(page_1)+Util.bytesToHex(page_2)+Util.bytesToHex(page_3)+Util.bytesToHex(page_4);
 //                Log.d(TAG,"Signatrue "+signature);
 //                mTvReadTag.setText(signature);
-                mTagManager.setSignature(publicKey);
-                sendSignatureToServer();
-                sendHash();
-                getPublicKey();
-                getRng();
+
 
 //                mTagManager.ntagWrite(data1, (byte) 0xF4);
 //                mTagManager.setNfcATimeout(20);
@@ -277,7 +287,9 @@ public class TagReaderActivity extends AppCompatActivity {
                 //TimeUnit.MILLISECONDS.sleep(1);
 
 */
-
+                if(process.equals(Constants.VALIDATION)) {
+                    validate();
+                }
                 mTagManager.setNfcATimeout(100);
                 mTagManager.ntagClose();
             } catch (Exception e) {
@@ -285,6 +297,24 @@ public class TagReaderActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    private void validate(){
+        RCApiManager.validate(mTagManager.getPublicKey(),mTagManager.getSignature(),mTagManager.getChallenge(), new Callback<RCApiResponse>() {
+            @Override
+            public void onResponse(Call<RCApiResponse> call, Response<RCApiResponse> response) {
+                RCApiResponse kabinettApiResponse = response.body();
+                mTvResult.setText(kabinettApiResponse.getStatus());
+                if(kabinettApiResponse.getData() != null){
+                    mTvResponseDetails.setText((String)kabinettApiResponse.getData());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RCApiResponse> call, Throwable t) {
+
+            }
+        });
     }
 
      /* Get the message introduced by the user, sendHash it and send to the antenna in order to sendSignature it.
@@ -371,21 +401,7 @@ public class TagReaderActivity extends AppCompatActivity {
     }
 
     private void setBalanceInfo(Balance balance){
-        mTvReadTag.setVisibility(View.GONE);
         mEtMessage.setVisibility(View.GONE);
         mInfoLayout.setVisibility(View.VISIBLE);
-    }
-
-    private URL getUrlWithParams(String address){
-        try {
-            return new URL(getBalanceUrl() + NETWORK + "/" + address);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private String getBalanceUrl(){
-        return API_URL + GET_BALANCE_URL;
     }
 }

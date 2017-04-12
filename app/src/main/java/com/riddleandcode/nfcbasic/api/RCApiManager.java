@@ -5,7 +5,8 @@ import retrofit2.Callback;
 
 public class RCApiManager {
 
-    static RCApiService RCService = ServiceGenerator.createService(RCApiService.class);
+    static RCApiService RCService = ServiceGenerator.createService(RCApiService.class,false);
+    static RCApiService RCServiceWithAuth = ServiceGenerator.createService(RCApiService.class,true);
 
     public static void getRng(Callback<RCApiResponse> callback){
         Call<RCApiResponse> call = RCService.getRng();
@@ -24,6 +25,11 @@ public class RCApiManager {
 
     public static void sendSignature(String signature, Callback<RCApiResponse> callback){
         Call<RCApiResponse> call = RCService.sendSignature(signature);
+        call.enqueue(callback);
+    }
+
+    public static void validate(String publicKey, String signature, String challenge, Callback<RCApiResponse> callback){
+        Call<RCApiResponse> call = RCServiceWithAuth.validate(publicKey,signature,challenge);
         call.enqueue(callback);
     }
 

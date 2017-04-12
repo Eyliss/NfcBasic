@@ -54,9 +54,9 @@ public class TagManager {
 //    byte[] sendHash = Hex.decodeHex("54686973206973206a75737420736f6d6520706f696e746c6573732064756d6d7920737472696e672e205468616e6b7320616e7977617920666f722074616b696e67207468652074696d6520746f206465636f6465206974203b2d29".toCharArray());
 //    byte[] signature = Hex.decodeHex("304402205fef461a4714a18a5ca6dce6d5ab8604f09f3899313a28ab430eb9860f8be9d602203c8d36446be85383af3f2e8630f40c4172543322b5e8973e03fff2309755e654".toCharArray());
 
-    String publicKey;
-    String hashMessage;
-    String signature;
+    private String publicKey = "AA8BC774646ADF5C9B753652379DE877C70087EB711A351580CC7261738BB65ABE33E1E370190EE74FD79421C8C4F80F9375CE2E687CC5D155C453CB33876CF7";
+    private String signature = "1948D64C603E29035A7926F7B3CD3235AECD1A39816E74932287814EEA52FE27E2CC4EC4171C94C372870B8D4FF43337AD12D01EF7CFD52C7B432869576CAD97";
+    private String challenge = "9834876DCFB05CB167A5C24953EBA58C4AC89B1ADF57F28F2F9D09AF107EE8F0";
 
     private NfcAdapter nfcAdapter;
     private NfcA nfca;
@@ -196,18 +196,8 @@ public class TagManager {
         nfca.setTimeout(timeOut);
     }
 
-    /**
-     * Controls whether a signature is the signature of the message using the public key read from the chip.
-     *
-     * @param message the message
-     * @return true if the signature is that of the message with the expected private key
-     */
-//    public boolean checkSign(byte[] message) throws CertificateException, CMSException, OperatorCreationException {
-//        return Crypto.verify(message, signature, publicKey);
-//    }
-
-    public String getHashMessage(){
-        return hashMessage;
+    public String getChallenge(){
+        return challenge;
     }
 
     public String getPublicKey(){
@@ -223,8 +213,8 @@ public class TagManager {
         this.publicKey = publicKey;
     }
 
-    public void setHashMessage(String hashMessage) {
-        this.hashMessage = hashMessage;
+    public void setChallenge(String challenge) {
+        this.challenge = challenge;
     }
 
     public void setSignature(String signature) {

@@ -40,4 +40,13 @@ public interface RCApiService {
     Call<RCApiResponse> sendSignature(
           @Field("s") String signature
     );
+
+    //Send signature
+    @FormUrlEncoded
+    @POST("validate")
+    Call<RCApiResponse> validate(
+          @Field("public_key") String publicKey,
+          @Field("signature") String signature,
+          @Field("challenge") String challenge
+    );
 }
