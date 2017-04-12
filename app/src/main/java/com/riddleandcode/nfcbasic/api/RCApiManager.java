@@ -1,5 +1,9 @@
 package com.riddleandcode.nfcbasic.api;
 
+import com.google.gson.JsonObject;
+
+import org.json.JSONObject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -19,17 +23,26 @@ public class RCApiManager {
     }
 
     public static void sendHashMessage(String message, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCService.sendHash(message);
+        JsonObject object = new JsonObject();
+        object.addProperty("s",message);
+        Call<RCApiResponse> call = RCService.sendHash(object);
         call.enqueue(callback);
     }
 
     public static void sendSignature(String signature, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCService.sendSignature(signature);
+        JsonObject object = new JsonObject();
+        object.addProperty("s",signature);
+        Call<RCApiResponse> call = RCService.sendSignature(object);
         call.enqueue(callback);
     }
 
     public static void validate(String publicKey, String signature, String challenge, Callback<RCApiResponse> callback){
-        Call<RCApiResponse> call = RCServiceWithAuth.validate(publicKey,signature,challenge);
+        JsonObject object = new JsonObject();
+        object.addProperty("public_key",publicKey);
+        object.addProperty("signature",signature);
+        object.addProperty("challenge",challenge);
+
+        Call<RCApiResponse> call = RCServiceWithAuth.validate(object);
         call.enqueue(callback);
     }
 

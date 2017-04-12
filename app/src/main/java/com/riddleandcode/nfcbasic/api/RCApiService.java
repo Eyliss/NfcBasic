@@ -1,7 +1,12 @@
 package com.riddleandcode.nfcbasic.api;
 
+import com.google.gson.JsonObject;
+
+import org.json.JSONObject;
+
 import okhttp3.MultipartBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -28,25 +33,20 @@ public interface RCApiService {
     Call<RCApiResponse> getPublicKey();
 
     //Send sendHash message
-    @FormUrlEncoded
     @POST("hash")
     Call<RCApiResponse> sendHash(
-          @Field("s") String message
+          @Body JsonObject jsonObject
     );
 
     //Send signature
-    @FormUrlEncoded
     @POST("sign")
     Call<RCApiResponse> sendSignature(
-          @Field("s") String signature
+          @Body JsonObject jsonObject
     );
 
     //Send signature
-    @FormUrlEncoded
     @POST("validate")
     Call<RCApiResponse> validate(
-          @Field("public_key") String publicKey,
-          @Field("signature") String signature,
-          @Field("challenge") String challenge
+          @Body JsonObject jsonObject
     );
 }

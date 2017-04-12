@@ -289,6 +289,7 @@ public class TagReaderActivity extends AppCompatActivity {
 */
                 if(process.equals(Constants.VALIDATION)) {
                     validate();
+//                    sendSignatureToServer();
                 }
                 mTagManager.setNfcATimeout(100);
                 mTagManager.ntagClose();
