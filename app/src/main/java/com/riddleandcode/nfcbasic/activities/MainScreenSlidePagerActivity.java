@@ -47,7 +47,7 @@ public class MainScreenSlidePagerActivity extends AppCompatActivity {
         mPagerAdapter = new MainScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabDots);
-        tabLayout.setupWithViewPager(mPager, true);
+        tabLayout.setupWithViewPager(mPager);
 
     }
 

@@ -45,6 +45,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 
 public class TagReaderActivity extends AppCompatActivity {
 
@@ -130,6 +131,37 @@ public class TagReaderActivity extends AppCompatActivity {
             try {
                 mTagManager.ntagInit(tagFromIntent);
                 mTagManager.ntagConnect();
+                byte[] message = Util.hashString("Hello world");
+                Log.d(TAG,"Signature "+Util.bytesToHex(message));
+
+                mTagManager.ntagSectorSelect((byte) 0x00);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,0,4), (byte) 0x04);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,4,8), (byte) 0x05);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,8,12), (byte) 0x06);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,12,16), (byte) 0x07);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,16,20), (byte) 0x08);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,20,24), (byte) 0x09);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,24,28), (byte) 0x0A);
+                mTagManager.setNfcATimeout(20);
+
+                mTagManager.ntagWrite(Arrays.copyOfRange(message,28,32), (byte) 0x0B);
+                mTagManager.setNfcATimeout(20);
+
+
 //                mTagManager.ntagGetVersion();
 
                 //Read the public key page by page
