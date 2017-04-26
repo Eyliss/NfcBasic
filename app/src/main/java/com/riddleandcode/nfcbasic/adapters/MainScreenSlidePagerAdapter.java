@@ -21,14 +21,16 @@ public class MainScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch (position){
-            case 0:
-                return mVerifyFragment;
-            case 1:
-                return mValidateFragment;
-            default:
-                return mVerifyFragment;
-        }
+//        switch (position){
+//            case 0:
+//                return mVerifyFragment;
+//            case 1:
+//                return mValidateFragment;
+//            default:
+//                return mVerifyFragment;
+//        }
+        return mValidateFragment;
+
     }
 
     @Override
