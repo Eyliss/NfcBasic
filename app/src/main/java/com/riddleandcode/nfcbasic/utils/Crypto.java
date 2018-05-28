@@ -10,6 +10,8 @@ import org.spongycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.spongycastle.jce.spec.ECNamedCurveSpec;
 import org.spongycastle.jce.spec.ECParameterSpec;
 import org.spongycastle.operator.OperatorCreationException;
+
+import android.util.Base64;
 import android.util.Log;
 
 import java.math.BigInteger;
@@ -74,11 +76,11 @@ public class Crypto {
         return keyPair;
     }
 
-    public static PublicKey getPublicKeyFromEncodedBytes(byte[] encodedBytes) throws GeneralSecurityException {
-
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(encodedBytes);
-        KeyFactory fact = KeyFactory.getInstance("EC");
-        return fact.generatePublic(spec);
+    public static PublicKey getRSAPublicKeyFromString(String apiKey) throws Exception{
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA", "SC");
+        byte[] publicKeyBytes = Base64.decode(apiKey.getBytes("UTF-8"), Base64.DEFAULT);
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        return keyFactory.generatePublic(x509KeySpec);
     }
 
 //    private static PublicKey getPublicKeyFromBytes(byte[] pubKeyBytes) throws NoSuchAlgorithmException, InvalidKeySpecException {
