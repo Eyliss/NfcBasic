@@ -1,0 +1,104 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+             tools:context="com.riddleandcode.nfcbasic.fragments.LoginFragment">
+    <!--<TextView-->
+            <!--android:id="@+id/title"-->
+            <!--android:text="@string/main_title"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="32dp"-->
+            <!--android:textColor="@color/tuna"-->
+            <!--android:gravity="center"/>-->
+    <!--<ImageView-->
+            <!--android:id="@+id/icon_image"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@mipmap/ic_launcher" android:layout_below="@+id/title"/>-->
+    <LinearLayout
+            android:id="@+id/email_login_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true">
+
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <EditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_email"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:singleLine="true"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <EditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_password"
+                    android:imeActionId="@+id/login"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:singleLine="true"/>
+
+        </android.support.design.widget.TextInputLayout>
+        <Button
+                android:id="@+id/log_in_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/login"
+                android:background="@drawable/rounded_button_layout"
+                android:backgroundTint="@color/tuna"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+                      android:paddingTop="@dimen/activity_vertical_margin"
+
+                      android:weightSum="1">
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="0.5"
+                    android:layout_height="match_parent"
+                    android:text="@string/not_registered_yet"
+                    style="@style/Base.TextAppearance.AppCompat.Small"
+                    android:textColor="@color/tuna"
+                    android:layout_marginRight="5dp"
+                    android:gravity="right"/>
+            <TextView
+                    android:id="@+id/create_account"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.5"
+                    android:layout_height="match_parent"
+                    android:text="@string/create_account"
+                    style="@style/Base.TextAppearance.AppCompat.Small"
+                    android:textColor="@color/amaranth"
+                    android:gravity="left"/>
+        </LinearLayout>
+
+    </LinearLayout>
+    <!-- Login progress -->
+    <ProgressBar
+            android:id="@+id/login_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
+</RelativeLayout>

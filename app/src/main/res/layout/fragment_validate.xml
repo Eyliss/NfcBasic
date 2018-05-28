@@ -1,0 +1,55 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              android:weightSum="1"
+                tools:context="com.riddleandcode.nfcbasic.fragments.ValidateFragment">
+
+    <RelativeLayout android:layout_width="match_parent" android:layout_height="0dp"
+    android:layout_weight="0.5">
+        <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                   android:src="@drawable/ic_validation"
+                   android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+<RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="0dp"
+             android:layout_weight="0.5">
+    <TextView
+            android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+        android:textColor="@color/tuna"
+        android:text="@string/validate_transaction_title"
+        android:gravity="center"
+            android:textSize="32sp"
+    android:padding="5dp"
+    android:layout_above="@+id/validate_text"/>
+    <TextView
+            android:id="@+id/validate_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/validate_transaction_text"
+            android:textSize="18sp"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_centerInParent="true"/>
+    <Button
+            android:id="@+id/validate_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/validate_text"
+            android:text="@string/validate_transaction_button"
+            android:textAllCaps="false"
+            android:background="@drawable/rounded_button_layout"
+            android:backgroundTint="@color/tuna"
+            android:textColor="@android:color/white"
+    android:textSize="18sp"/>
+</RelativeLayout>
+</LinearLayout>

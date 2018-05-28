@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -46,20 +47,14 @@ public class Util {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
         outputStream.write(array1);
         outputStream.write(array2);
-        return outputStream.toByteArray( );
+        return outputStream.toByteArray();
     }
 
     public static byte[] hashString(String originalMessage) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
-        byte[] message = new byte[0];
-        try {
-            message = Hex.decodeHex(charStringtoHexString(originalMessage).toCharArray());
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(message);
-            return  md.digest();
-        } catch (DecoderException e) {
-            e.printStackTrace();
-        }
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(originalMessage.getBytes("UTF-8"));
+        byte[] message = md.digest();
         return message;
     }
 

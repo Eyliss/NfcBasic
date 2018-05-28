@@ -1,20 +1,62 @@
 <resources>
-    <string name="app_name">NfcBasic</string>
-    <string name="main_title">Riddle&amp;Code</string>
-    <string name="tag_available">Please, introduce your message and put your phone close to the antenna</string>
-    <string name="tag_unavailable">Tag no available</string>
-    <string name="message_hint">Introduce your message here</string>
-    <string name="empty_message_found">Please, introduce a message</string>
-    <string name="network">Your network is: %1$s</string>
-    <string name="confirmed_balance">Confirmed balance: %1$s</string>
-    <string name="unconfirmed_balance">Unconfirmed balance: %1$s</string>
+    <string name="app_name">Demo</string>
+    <string name="main_title">The Maltese Vault</string>
+    <string name="signature">(c)2017 RIDDLE&amp;CODE</string>
 
-    <string name="verification_success">Signature verification succeed</string>
-    <string name="verification_fail">Signature verification fail</string>
+    <!--<string name="tag_available">Please, introduce your message and put your phone close to the antenna</string>-->
+    <!--<string name="tag_unavailable">Tag no available</string>-->
+    <!--<string name="message_hint">Introduce your message here</string>-->
+    <!--<string name="empty_message_found">Please, introduce a message</string>-->
+    <!--<string name="network">Your network is: %1$s</string>-->
+    <!--<string name="confirmed_balance">Confirmed balance: %1$s</string>-->
+    <!--<string name="unconfirmed_balance">Unconfirmed balance: %1$s</string>-->
 
+    <string name="start_demo">Start Demo</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="login">Log In</string>
+    <string name="not_registered_yet">Not registered yet?</string>
+    <string name="create_account">Create an account</string>
+
+    <string name="verify_tag_title">Verify Tag</string>
+    <string name="verify_tag_text">Click the Verify-Tag button and touch the NFC tag to verify the provenance of the product</string>
+
+    <string name="validate_transaction_title">Validate Transaction</string>
+    <string name="validate_transaction_text">Click the Validate-Tx-Button to proof the product is an original one owned legitimately</string>
+    <string name="validate_transaction_button">Validate Tx</string>
+
+    <!-- Result screens messages -->
+    <string name="verification_action_bar_title">Verification</string>
+    <string name="verification_main_title">Challenge</string>
+    <string name="verification_success">Response verified successfully</string>
+    <string name="verification_fail">Response verification failed</string>
+
+    <string name="validation_action_bar_title">Validation</string>
+    <string name="validation_main_title">Transaction</string>
+    <string name="transaction_validated">Tx existence validated</string>
+    <string name="transaction_not_validated">Error: Tx existence not validated</string>
+
+    <string name="result">RESULT</string>
+    <string name="response_details">RESPONSE DETAILS</string>
+
+    <!-- String related to errors messages -->
     <string name="error_invalid_payload_size">Invalid payload size</string>
     <string name="error_not_supported_operation">Operation not supported</string>
     <string name="error_operation_fail">Operation fail</string>
     <string name="error_ocurred">An error has ocurred</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+
+    <string name="feature_not_available">Feature not available</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 
 </resources>
